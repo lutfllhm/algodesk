@@ -13,9 +13,9 @@ exports.getDashboardStats = async (req, res) => {
 
     const [rusakStats] = await db.query(`
       SELECT COUNT(*) as total,
-        SUM(CASE WHEN status = 'Service' THEN 1 ELSE 0 END) as service,
-        SUM(CASE WHEN status = 'Error' THEN 1 ELSE 0 END) as error,
-        SUM(CASE WHEN status = 'Selesai' THEN 1 ELSE 0 END) as selesai
+        SUM(CASE WHEN status = 'Proses Servis' THEN 1 ELSE 0 END) as proses_servis,
+        SUM(CASE WHEN status = 'Gudang Rusak' THEN 1 ELSE 0 END) as gudang_rusak,
+        SUM(CASE WHEN status = 'Kembali ke Stok/Customer' THEN 1 ELSE 0 END) as kembali
       FROM rusak
     `);
 

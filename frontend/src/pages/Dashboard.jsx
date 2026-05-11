@@ -183,27 +183,45 @@ const Dashboard = () => {
     }
   };
 
-  /* monthly trend */
+  /* monthly trend — rusak */
   const monthlyLabels = (stats?.monthly_rusak || []).map(r => {
     const [y, m] = r.month.split('-');
     return new Date(y, m - 1).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
   });
   const monthlyData = (stats?.monthly_rusak || []).map(r => r.total);
+  const monthlyMax = Math.max(...(monthlyData.length ? monthlyData : [0]), 1);
+  const monthlyTotal = monthlyData.reduce((a, b) => a + b, 0);
+  const monthlyAvg = monthlyData.length ? Math.round(monthlyTotal / monthlyData.length) : 0;
 
   const trendData = {
     labels: monthlyLabels.length ? monthlyLabels : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
-    datasets: [{
-      label: 'Rusak Masuk',
-      data: monthlyData.length ? monthlyData : [0, 0, 0, 0, 0, 0],
-      fill: true,
-      backgroundColor: 'rgba(37,99,235,0.06)',
-      borderColor: 'var(--primary)',
-      borderWidth: 2,
-      pointBackgroundColor: 'var(--primary)',
-      pointRadius: 4,
-      pointHoverRadius: 6,
-      tension: 0.4,
-    }]
+    datasets: [
+      {
+        type: 'bar',
+        label: 'Rusak Masuk',
+        data: monthlyData.length ? monthlyData : [0, 0, 0, 0, 0, 0],
+        backgroundColor: monthlyData.map((v, i) =>
+          i === monthlyData.indexOf(Math.max(...monthlyData))
+            ? 'rgba(99,102,241,0.95)'
+            : 'rgba(99,102,241,0.55)'
+        ),
+        borderRadius: 8,
+        borderSkipped: false,
+        order: 2,
+      },
+      {
+        type: 'line',
+        label: 'Rata-rata',
+        data: (monthlyData.length ? monthlyData : [0,0,0,0,0,0]).map(() => monthlyAvg),
+        borderColor: 'rgba(251,146,60,0.8)',
+        borderWidth: 2,
+        borderDash: [6, 4],
+        pointRadius: 0,
+        fill: false,
+        tension: 0,
+        order: 1,
+      }
+    ]
   };
 
   const tiketData = {
@@ -330,7 +348,7 @@ const Dashboard = () => {
       {/* ── Stat Cards ── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: '14px', marginBottom: '20px' }}>
         <StatCard title="Service Retur" value={stats?.rusak?.total || 0} icon="🔧" color="#6366f1"
-          sub={`${stats?.rusak?.proses_servis || stats?.rusak?.service || 0} proses servis`}
+          sub={`${stats?.rusak?.proses_servis || 0} proses servis`}
           onClick={() => navigate('/rusak')} />
         <StatCard title="Service Reguler" value={0} icon="👤" color="#0891b2"
           sub="customer reguler"
@@ -431,11 +449,77 @@ const Dashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '16px', marginBottom: '16px' }}>
 
         <div className="card">
-          <div className="card-header">
-            <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>📈 Tren Rusak Masuk (6 Bulan)</span>
+          <div className="card-header" style={{ alignItems: 'flex-start', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>📈 Tren Rusak Masuk (6 Bulan)</span>
+              <span style={{
+                background: '#6366f110', color: '#6366f1',
+                padding: '3px 10px', borderRadius: '999px',
+                fontSize: '11.5px', fontWeight: 600
+              }}>
+                {monthlyTotal} total
+              </span>
+            </div>
+            {/* Mini stat row */}
+            <div style={{ display: 'flex', gap: '16px', width: '100%' }}>
+              {[
+                { label: 'Total 6 Bln', value: monthlyTotal, color: '#6366f1' },
+                { label: 'Rata-rata/Bln', value: monthlyAvg, color: '#f97316' },
+                { label: 'Tertinggi', value: monthlyMax, color: '#ef4444' },
+              ].map(s => (
+                <div key={s.label} style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
+                  <span style={{ fontSize: '18px', fontWeight: 800, color: s.color, lineHeight: 1 }}>{s.value}</span>
+                  <span style={{ fontSize: '10.5px', color: 'var(--text-muted)', fontWeight: 500 }}>{s.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="card-body" style={{ height: '210px' }}>
-            <Line data={trendData} options={chartOpts} />
+          <div className="card-body" style={{ height: '220px' }}>
+            <Bar
+              data={trendData}
+              options={{
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                      color: '#9ca3af', font: { size: 10, family: 'Plus Jakarta Sans' },
+                      boxWidth: 12, padding: 10, usePointStyle: true,
+                    }
+                  },
+                  tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleColor: '#f1f5f9',
+                    bodyColor: '#94a3b8',
+                    padding: 10,
+                    cornerRadius: 8,
+                    callbacks: {
+                      label: (ctx) => ` ${ctx.dataset.label}: ${ctx.parsed.y} unit`
+                    }
+                  }
+                },
+                scales: {
+                  x: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11, family: 'Plus Jakarta Sans' }, color: '#9ca3af' },
+                    border: { display: false }
+                  },
+                  y: {
+                    grid: { color: 'rgba(148,163,184,0.1)', drawBorder: false },
+                    ticks: {
+                      font: { size: 11, family: 'Plus Jakarta Sans' }, color: '#9ca3af',
+                      stepSize: 1,
+                      callback: (v) => Number.isInteger(v) ? v : ''
+                    },
+                    border: { display: false },
+                    beginAtZero: true,
+                  }
+                }
+              }}
+            />
           </div>
         </div>
 
