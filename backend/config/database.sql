@@ -594,3 +594,12 @@ CREATE TABLE IF NOT EXISTS sales_support (
 ALTER TABLE users
   ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255) DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS reset_token_expires DATETIME DEFAULT NULL;
+
+-- =============================================
+-- MIGRATION: Fix ENUM status tabel rusak
+-- Jalankan ini jika import Excel masih error "Data truncated for column 'status'"
+-- =============================================
+UPDATE rusak SET status = 'Proses Servis' WHERE status = 'Service';
+UPDATE rusak SET status = 'Gudang Rusak' WHERE status = 'Error';
+UPDATE rusak SET status = 'Kembali ke Stok/Customer' WHERE status = 'Selesai';
+ALTER TABLE rusak MODIFY COLUMN status ENUM('Proses Servis','Gudang Rusak','Kembali ke Stok/Customer') DEFAULT 'Proses Servis';

@@ -97,34 +97,55 @@ const MODULE_CONFIGS = {
   rusak: {
     table: 'rusak',
     required: [], // tidak ada kolom wajib — semua opsional
-    map: (row) => ({
-      tgl_masuk:        parseDate(pick(row, 'tgl_masuk', 'tanggal_masuk', 'tanggal', 'tgl')) || new Date().toISOString().slice(0, 10),
-      no_pesanan:       pick(row, 'no_pesanan', 'no_order', 'nomor_pesanan', 'no_resi', 'resi'),
-      tipe:             pick(row, 'tipe', 'produk', 'nama_produk', 'barang', 'type'),
-      nomor_seri:       pick(row, 'nomor_seri', 'serial_number', 'sn', 'serial', 'no_seri'),
-      kendala_diagnosa: pick(row, 'kendala_diagnosa', 'kendala', 'diagnosa', 'keluhan', 'keterangan_kendala'),
-      kelengkapan:      pick(row, 'kelengkapan'),
-      validasi:         pick(row, 'validasi'),
-      status:           pick(row, 'status') || 'Proses Servis',
-      tgl_kembali:      parseDate(pick(row, 'tgl_kembali', 'tgl_kembali_stok', 'tgl_selesai')),
-    }),
+    map: (row) => {
+      // Normalize status dari Excel ke ENUM yang valid
+      const rawStatus = pick(row, 'status') || '';
+      const statusMap = {
+        'service': 'Proses Servis', 'proses': 'Proses Servis', 'proses servis': 'Proses Servis',
+        'error': 'Gudang Rusak', 'rusak': 'Gudang Rusak', 'gudang rusak': 'Gudang Rusak',
+        'selesai': 'Kembali ke Stok/Customer', 'kembali': 'Kembali ke Stok/Customer',
+        'kembali ke stok/customer': 'Kembali ke Stok/Customer',
+      };
+      const normalizedStatus = statusMap[rawStatus.toLowerCase()] || 'Proses Servis';
+      return {
+        tgl_masuk:        parseDate(pick(row, 'tgl_masuk', 'tanggal_masuk', 'tanggal', 'tgl')) || new Date().toISOString().slice(0, 10),
+        no_pesanan:       pick(row, 'no_pesanan', 'no_order', 'nomor_pesanan', 'no_resi', 'resi'),
+        tipe:             pick(row, 'tipe', 'produk', 'nama_produk', 'barang', 'type'),
+        nomor_seri:       pick(row, 'nomor_seri', 'serial_number', 'sn', 'serial', 'no_seri'),
+        kendala_diagnosa: pick(row, 'kendala_diagnosa', 'kendala', 'diagnosa', 'keluhan', 'keterangan_kendala'),
+        kelengkapan:      pick(row, 'kelengkapan'),
+        validasi:         pick(row, 'validasi'),
+        status:           normalizedStatus,
+        tgl_kembali:      parseDate(pick(row, 'tgl_kembali', 'tgl_kembali_stok', 'tgl_selesai')),
+      };
+    },
   },
 
   'dari-customer': {
     table: 'dari_customer',
     required: [],
-    map: (row) => ({
-      tgl_masuk:        parseDate(pick(row, 'tgl_masuk', 'tanggal_masuk', 'tanggal', 'tgl')) || new Date().toISOString().slice(0, 10),
-      nama_customer:    pick(row, 'nama_customer', 'nama', 'customer'),
-      alamat_customer:  pick(row, 'alamat_customer', 'alamat'),
-      tipe:             pick(row, 'tipe', 'produk', 'nama_produk', 'barang', 'type'),
-      nomor_seri:       pick(row, 'nomor_seri', 'serial_number', 'sn', 'serial', 'no_seri'),
-      kendala_diagnosa: pick(row, 'kendala_diagnosa', 'kendala', 'diagnosa', 'keluhan'),
-      kelengkapan:      pick(row, 'kelengkapan'),
-      validasi:         pick(row, 'validasi'),
-      status:           pick(row, 'status') || 'Proses Servis',
-      tgl_kembali:      parseDate(pick(row, 'tgl_kembali', 'tgl_selesai')),
-    }),
+    map: (row) => {
+      const rawStatus = pick(row, 'status') || '';
+      const statusMap = {
+        'service': 'Proses Servis', 'proses': 'Proses Servis', 'proses servis': 'Proses Servis',
+        'error': 'Gudang Rusak', 'rusak': 'Gudang Rusak', 'gudang rusak': 'Gudang Rusak',
+        'selesai': 'Kembali ke Stok/Customer', 'kembali': 'Kembali ke Stok/Customer',
+        'kembali ke stok/customer': 'Kembali ke Stok/Customer',
+      };
+      const normalizedStatus = statusMap[rawStatus.toLowerCase()] || 'Proses Servis';
+      return {
+        tgl_masuk:        parseDate(pick(row, 'tgl_masuk', 'tanggal_masuk', 'tanggal', 'tgl')) || new Date().toISOString().slice(0, 10),
+        nama_customer:    pick(row, 'nama_customer', 'nama', 'customer'),
+        alamat_customer:  pick(row, 'alamat_customer', 'alamat'),
+        tipe:             pick(row, 'tipe', 'produk', 'nama_produk', 'barang', 'type'),
+        nomor_seri:       pick(row, 'nomor_seri', 'serial_number', 'sn', 'serial', 'no_seri'),
+        kendala_diagnosa: pick(row, 'kendala_diagnosa', 'kendala', 'diagnosa', 'keluhan'),
+        kelengkapan:      pick(row, 'kelengkapan'),
+        validasi:         pick(row, 'validasi'),
+        status:           normalizedStatus,
+        tgl_kembali:      parseDate(pick(row, 'tgl_kembali', 'tgl_selesai')),
+      };
+    },
   },
 
   blp: {
