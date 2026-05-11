@@ -104,10 +104,10 @@ const SalesSupport = () => {
     try {
       if (modal.mode === 'add') {
         await api.post('/sales-support', form);
-        toast.success('Tiket berhasil ditambahkan');
+        toast.success('Data berhasil ditambahkan');
       } else {
         await api.put(`/sales-support/${modal.data.id}`, form);
-        toast.success('Tiket berhasil diperbarui');
+        toast.success('Data berhasil diperbarui');
       }
       setModal({ open: false, mode: 'add', data: null });
       fetchData(pagination.page);
@@ -121,7 +121,7 @@ const SalesSupport = () => {
   const handleDelete = async (id) => {
     try {
       await api.delete(`/sales-support/${id}`);
-      toast.success('Tiket berhasil dihapus');
+      toast.success('Data berhasil dihapus');
       setDeleteConfirm(null);
       fetchData(pagination.page);
     } catch (err) {
@@ -255,7 +255,7 @@ const SalesSupport = () => {
         onSearch={setSearch}
         searchValue={search}
         onAdd={openAdd}
-        addLabel="+ Tambah Tiket"
+        addLabel="+ Tambah Data"
         extraFilters={
           <DateRangeFilter
             dateFrom={dateFrom}
@@ -271,7 +271,7 @@ const SalesSupport = () => {
       <Modal
         isOpen={modal.open}
         onClose={() => setModal({ open: false, mode: 'add', data: null })}
-        title={modal.mode === 'add' ? '➕ Tambah Tiket Sales Support' : '✏️ Edit Tiket Sales Support'}
+        title={modal.mode === 'add' ? '➕ Tambah Data Sales Support' : '✏️ Edit Data Sales Support'}
         size="lg"
       >
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -361,7 +361,7 @@ const SalesSupport = () => {
         size="sm"
       >
         <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
-          Hapus tiket dari <strong>{deleteConfirm?.nomor_wa || 'pelanggan ini'}</strong>?
+          Hapus data dari <strong>{deleteConfirm?.nomor_wa || 'pelanggan ini'}</strong>?
           Tindakan ini tidak dapat dibatalkan.
         </p>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
