@@ -12,7 +12,7 @@ services:
       - mysql_data:/var/lib/mysql
       - ./backend/config/database.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
     ports:
-      - "3306:3306"
+      - "3307:3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
       interval: 5s
@@ -30,7 +30,7 @@ services:
       PMA_PORT: 3306
       PMA_ARBITRARY: 0
     ports:
-      - "8081:80"
+      - "8082:80"
 
   backend:
     build:
@@ -51,7 +51,7 @@ services:
     volumes:
       - backend_uploads:/app/uploads
     ports:
-      - "5000:5000"
+      - "5001:5000"
 
   web:
     build:
@@ -62,7 +62,9 @@ services:
     depends_on:
       - backend
     ports:
-      - "80:80"
+      # Setelah subdomain + Nginx di host jalan: ganti menjadi "127.0.0.1:8090:80"
+      # agar port 8090 hanya bisa diakses dari localhost (reverse proxy VPS).
+      - "8090:80"
 
 volumes:
   mysql_data:
