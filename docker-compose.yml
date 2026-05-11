@@ -48,6 +48,7 @@ services:
       DB_PASSWORD: ${MYSQL_PASSWORD:-change_me_db_password}
       DB_NAME: ${MYSQL_DATABASE:-algoodesk}
       JWT_SECRET: ${JWT_SECRET:-change_me_jwt_secret}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
     volumes:
       - backend_uploads:/app/uploads
     ports:
