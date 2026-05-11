@@ -136,34 +136,6 @@ Pastikan ada file: **`docker-compose.yml`**, folder **`backend/`**, **`frontend/
 
 ---
 
-### 5b) Generate JWT Secret yang kuat
-
-JWT Secret adalah string acak panjang yang dipakai untuk menandatangani token login. **Jangan pakai string pendek atau mudah ditebak.**
-
-**Cara generate — pilih salah satu:**
-
-**Opsi 1 — di terminal VPS (paling mudah):**
-```bash
-openssl rand -base64 64
-```
-
-**Opsi 2 — Node.js (jika ada di VPS):**
-```bash
-node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"
-```
-
-**Opsi 3 — Online generator:**
-Buka [https://generate-secret.vercel.app/64](https://generate-secret.vercel.app/64) → salin hasilnya.
-
-Contoh hasil (jangan pakai ini, generate sendiri):
-```
-mK9xQ2vL8pRnT5wYjC3uA7bZeH1sDfGo4iNmXqWcVkUyPtOlJhEgBrMsIdFaKn==
-```
-
-Salin hasilnya, nanti dipakai sebagai nilai `JWT_SECRET` di file `.env`.
-
----
-
 ### 6) Buat file `.env` di root project
 
 ```bash
