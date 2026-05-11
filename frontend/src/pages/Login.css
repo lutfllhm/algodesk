@@ -585,6 +585,7 @@
   color: #1e293b;
   border-radius: 8px;
   font-size: 14px;
+  caret-color: #3b82f6;
 }
 
 .login-shell-utech .login-input.login-input-light::placeholder{
