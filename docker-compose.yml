@@ -1,0 +1,69 @@
+services:
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-change_me_root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-algoodesk}
+      MYSQL_USER: ${MYSQL_USER:-algoodesk}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-change_me_db_password}
+    command: ["mysqld","--default-authentication-plugin=mysql_native_password"]
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/config/database.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  phpmyadmin:
+    image: phpmyadmin:5-apache
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 0
+    ports:
+      - "8081:80"
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      DB_HOST: mysql
+      DB_USER: ${MYSQL_USER:-algoodesk}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-change_me_db_password}
+      DB_NAME: ${MYSQL_DATABASE:-algoodesk}
+      JWT_SECRET: ${JWT_SECRET:-change_me_jwt_secret}
+    volumes:
+      - backend_uploads:/app/uploads
+    ports:
+      - "5000:5000"
+
+  web:
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_URL: /api
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  mysql_data:
+  backend_uploads:
