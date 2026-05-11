@@ -176,12 +176,11 @@ exports.getDashboardStats = async (req, res) => {
     const [salesSupportStats] = await db.query(`
       SELECT
         COUNT(*) as total,
-        SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open_count,
-        SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
-        SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END) as resolved,
-        SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) as closed
+        SUM(CASE WHEN status = 'Done' THEN 1 ELSE 0 END) as done_count,
+        SUM(CASE WHEN status = 'No Respond' THEN 1 ELSE 0 END) as no_respond,
+        SUM(CASE WHEN status = 'Retur' THEN 1 ELSE 0 END) as retur
       FROM sales_support
-    `).catch(() => [[ { total: 0, open_count: 0, in_progress: 0, resolved: 0, closed: 0 } ]]);
+    `).catch(() => [[ { total: 0, done_count: 0, no_respond: 0, retur: 0 } ]]);
 
     const [salesSupportMonthly] = await db.query(`
       SELECT DATE_FORMAT(tanggal, '%Y-%m') as month, COUNT(*) as total

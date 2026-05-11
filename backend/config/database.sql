@@ -569,3 +569,28 @@ CREATE TABLE IF NOT EXISTS dari_customer (
 ALTER TABLE users
   ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255) DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS reset_token_expires DATETIME DEFAULT NULL;
+
+-- =============================================
+-- SALES SUPPORT TABLE
+-- =============================================
+CREATE TABLE IF NOT EXISTS sales_support (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  tanggal DATE,
+  nomor_wa VARCHAR(30),
+  marketplace VARCHAR(100),
+  no_pesanan VARCHAR(150),
+  produk VARCHAR(255),
+  keluhan TEXT,
+  masalah TEXT,
+  metode_solusi TEXT,
+  status ENUM('Done','No Respond','Retur') DEFAULT 'Done',
+  created_by INT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- MIGRATION: Reset password columns (jika belum ada)
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS reset_token_expires DATETIME DEFAULT NULL;

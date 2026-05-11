@@ -83,7 +83,7 @@ exports.create = async (req, res) => {
         keluhan || null,
         masalah || null,
         metode_solusi || null,
-        status || 'Open',
+        status || 'Done',
         req.user.id
       ]
     );
@@ -121,7 +121,7 @@ exports.update = async (req, res) => {
         keluhan || null,
         masalah || null,
         metode_solusi || null,
-        status || 'Open',
+        status || 'Done',
         req.params.id
       ]
     );
@@ -163,10 +163,9 @@ exports.getStats = async (req, res) => {
     const [stats] = await db.query(`
       SELECT
         COUNT(*) as total,
-        SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open_count,
-        SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
-        SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END) as resolved,
-        SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) as closed
+        SUM(CASE WHEN status = 'Done' THEN 1 ELSE 0 END) as done_count,
+        SUM(CASE WHEN status = 'No Respond' THEN 1 ELSE 0 END) as no_respond,
+        SUM(CASE WHEN status = 'Retur' THEN 1 ELSE 0 END) as retur
       FROM sales_support
     `);
 

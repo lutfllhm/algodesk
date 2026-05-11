@@ -7,7 +7,7 @@ import PageHeader from '../components/PageHeader';
 import DateRangeFilter from '../components/DateRangeFilter';
 
 const MARKETPLACE_OPTIONS = ['Shopee', 'TiktokShop', 'Tokopedia', 'Lazada', 'Lainnya'];
-const STATUS_OPTIONS = ['Open', 'In Progress', 'Resolved', 'Closed'];
+const STATUS_OPTIONS = ['Done', 'No Respond', 'Retur'];
 
 const EMPTY_FORM = {
   tanggal: '',
@@ -18,18 +18,17 @@ const EMPTY_FORM = {
   keluhan: '',
   masalah: '',
   metode_solusi: '',
-  status: 'Open',
+  status: 'Done',
 };
 
 const STATUS_STYLE = {
-  'Open':        { background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' },
-  'In Progress': { background: '#dbeafe', color: '#1e40af', border: '1px solid #bfdbfe' },
-  'Resolved':    { background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' },
-  'Closed':      { background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' },
+  'Done':       { background: '#dcfce7', color: '#166534', border: '1px solid #bbf7d0' },
+  'No Respond': { background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' },
+  'Retur':      { background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5' },
 };
 
 const StatusBadge = ({ status }) => {
-  const style = STATUS_STYLE[status] || STATUS_STYLE['Open'];
+  const style = STATUS_STYLE[status] || STATUS_STYLE['Done'];
   return (
     <span style={{
       ...style,
@@ -40,7 +39,7 @@ const StatusBadge = ({ status }) => {
       whiteSpace: 'nowrap',
       display: 'inline-block',
     }}>
-      {status || 'Open'}
+      {status || 'Done'}
     </span>
   );
 };
@@ -95,7 +94,7 @@ const SalesSupport = () => {
       keluhan: row.keluhan || '',
       masalah: row.masalah || '',
       metode_solusi: row.metode_solusi || '',
-      status: row.status || 'Open',
+      status: row.status || 'Done',
     });
     setModal({ open: true, mode: 'edit', data: row });
   };
@@ -336,7 +335,7 @@ const SalesSupport = () => {
           <div className="form-group">
             <label className="form-label">Status</label>
             <select className="form-control"
-              value={form.status || 'Open'}
+              value={form.status || 'Done'}
               onChange={e => setForm({ ...form, status: e.target.value })}>
               {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
             </select>

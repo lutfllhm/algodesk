@@ -124,7 +124,7 @@ async function ensureTables() {
       keluhan TEXT,
       masalah TEXT,
       metode_solusi TEXT,
-      status ENUM('Open','In Progress','Resolved','Closed') DEFAULT 'Open',
+      status ENUM('Done','No Respond','Retur') DEFAULT 'Done',
       created_by INT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
