@@ -107,6 +107,10 @@ async function ensureTables() {
   await tryQuery(
     `ALTER TABLE rusak MODIFY COLUMN status ENUM('Proses Servis','Gudang Rusak','Kembali ke Stok/Customer') DEFAULT 'Proses Servis'`
   );
+
+  // Forgot / Reset password — add token columns to users if not present
+  await tryQuery(`ALTER TABLE users ADD COLUMN reset_token VARCHAR(255) DEFAULT NULL`);
+  await tryQuery(`ALTER TABLE users ADD COLUMN reset_token_expires DATETIME DEFAULT NULL`);
 }
 
 module.exports = { ensureTables };

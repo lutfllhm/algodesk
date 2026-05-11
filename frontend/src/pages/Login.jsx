@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { setAuth, isAuthenticated } from '../utils/auth';
@@ -342,9 +342,9 @@ const Login = () => {
                 )}
               </button>
 
-              <button type="button" className="login-forgot" disabled>
+              <Link to="/forgot-password" className="login-forgot">
                 Forgot password?
-              </button>
+              </Link>
             </form>
 
             <div className="login-left-foot">© {year} Algoods</div>

@@ -562,3 +562,10 @@ CREATE TABLE IF NOT EXISTS dari_customer (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
+
+-- =============================================
+-- MIGRATION: Tambah kolom reset password ke users
+-- =============================================
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS reset_token VARCHAR(255) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS reset_token_expires DATETIME DEFAULT NULL;
