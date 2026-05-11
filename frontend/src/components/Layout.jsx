@@ -101,6 +101,11 @@ const menuItems = [
     ]
   },
   {
+    label: 'Sales Support',
+    icon: '🎧',
+    path: '/sales-support'
+  },
+  {
     label: 'Laporan',
     icon: '📈',
     path: '/report'

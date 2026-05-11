@@ -17,6 +17,7 @@ const settingRoutes = require('./settings');
 const importRoutes = require('./import');
 const dariCustomerRoutes = require('./dariCustomer');
 const notificationRoutes = require('./notifications');
+const salesSupportRoutes = require('./salesSupport');
 
 router.use('/auth', authRoutes);
 router.use('/rusak', rusakRoutes);
@@ -35,5 +36,6 @@ router.use('/report', reportRoutes);
 router.use('/settings', settingRoutes);
 router.use('/import', importRoutes);
 router.use('/notifications', notificationRoutes);
+router.use('/sales-support', salesSupportRoutes);
 
 module.exports = router;

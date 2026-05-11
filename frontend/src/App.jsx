@@ -21,6 +21,7 @@ import CodGagalShopeeMami from './pages/CodGagalShopeeMami';
 import Report from './pages/Report';
 import Users from './pages/Users';
 import Settings from './pages/Settings';
+import SalesSupport from './pages/SalesSupport';
 import Layout from './components/Layout';
 import PrivateRoute from './components/PrivateRoute';
 
@@ -51,6 +52,7 @@ function App() {
           <Route path="report" element={<Report />} />
           <Route path="users" element={<Users />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="sales-support" element={<SalesSupport />} />
         </Route>
       </Routes>
     </Router>

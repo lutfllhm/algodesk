@@ -172,6 +172,24 @@ exports.getDashboardStats = async (req, res) => {
       GROUP BY month ORDER BY month
     `);
 
+    // Sales Support stats
+    const [salesSupportStats] = await db.query(`
+      SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open_count,
+        SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
+        SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END) as resolved,
+        SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) as closed
+      FROM sales_support
+    `).catch(() => [[ { total: 0, open_count: 0, in_progress: 0, resolved: 0, closed: 0 } ]]);
+
+    const [salesSupportMonthly] = await db.query(`
+      SELECT DATE_FORMAT(tanggal, '%Y-%m') as month, COUNT(*) as total
+      FROM sales_support
+      WHERE tanggal >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+      GROUP BY month ORDER BY month
+    `).catch(() => [[]]);
+
     res.json({
       success: true,
       data: {
@@ -188,7 +206,9 @@ exports.getDashboardStats = async (req, res) => {
           by_province: codByProvince,
           by_city: codByCity,
         },
-        monthly_rusak: monthlyRusak
+        monthly_rusak: monthlyRusak,
+        sales_support: salesSupportStats[0],
+        sales_support_monthly: salesSupportMonthly
       }
     });
   } catch (error) {

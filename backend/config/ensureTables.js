@@ -111,6 +111,26 @@ async function ensureTables() {
   // Forgot / Reset password — add token columns to users if not present
   await tryQuery(`ALTER TABLE users ADD COLUMN reset_token VARCHAR(255) DEFAULT NULL`);
   await tryQuery(`ALTER TABLE users ADD COLUMN reset_token_expires DATETIME DEFAULT NULL`);
+
+  // Sales Support table
+  await tryQuery(`
+    CREATE TABLE IF NOT EXISTS sales_support (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      tanggal DATE,
+      nomor_wa VARCHAR(30),
+      marketplace VARCHAR(100),
+      no_pesanan VARCHAR(150),
+      produk VARCHAR(255),
+      keluhan TEXT,
+      masalah TEXT,
+      metode_solusi TEXT,
+      status ENUM('Open','In Progress','Resolved','Closed') DEFAULT 'Open',
+      created_by INT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
 }
 
 module.exports = { ensureTables };

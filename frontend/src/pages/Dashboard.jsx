@@ -355,6 +355,9 @@ const Dashboard = () => {
           icon={<ShopeeIcon size={18} />} color="#ec4899"
           sub={`${stats?.retur_shopee?.banding || 0} banding`}
           onClick={() => navigate('/retur-shopee')} />
+        <StatCard title="Sales Support" value={stats?.sales_support?.total || 0} icon="🎧" color="#0ea5e9"
+          sub={`${stats?.sales_support?.open_count || 0} open · ${stats?.sales_support?.in_progress || 0} in progress`}
+          onClick={() => navigate('/sales-support')} />
       </div>
 
       {/* ── Filter Retur TikTok & Shopee ── */}
@@ -490,6 +493,76 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* ── Sales Support Chart ── */}
+      {(() => {
+        const ssMonthly = stats?.sales_support_monthly || [];
+        const ssLabels = ssMonthly.map(r => {
+          const [y, m] = r.month.split('-');
+          return new Date(y, m - 1).toLocaleDateString('id-ID', { month: 'short', year: '2-digit' });
+        });
+        const ssData = ssMonthly.map(r => r.total);
+        const ssTotal = stats?.sales_support?.total || 0;
+        const ssOpen = stats?.sales_support?.open_count || 0;
+        const ssInProgress = stats?.sales_support?.in_progress || 0;
+        const ssResolved = stats?.sales_support?.resolved || 0;
+        const ssClosed = stats?.sales_support?.closed || 0;
+
+        const ssTrendData = {
+          labels: ssLabels.length ? ssLabels : ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+          datasets: [{
+            label: 'Tiket Masuk',
+            data: ssData.length ? ssData : [0, 0, 0, 0, 0, 0],
+            fill: true,
+            backgroundColor: 'rgba(14,165,233,0.08)',
+            borderColor: '#0ea5e9',
+            borderWidth: 2,
+            pointBackgroundColor: '#0ea5e9',
+            pointRadius: 4,
+            tension: 0.4,
+          }]
+        };
+
+        const ssStatusData = {
+          labels: ['Open', 'In Progress', 'Resolved', 'Closed'],
+          datasets: [{
+            data: [ssOpen, ssInProgress, ssResolved, ssClosed],
+            backgroundColor: ['#fbbf24', '#60a5fa', '#34d399', '#94a3b8'],
+            borderWidth: 2,
+            borderColor: '#fff',
+            hoverOffset: 4,
+          }]
+        };
+
+        return (
+          <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr', gap: '16px', marginBottom: '16px' }}>
+            <div className="card">
+              <div className="card-header" style={{ alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>🎧 Tren Sales Support (6 Bulan)</span>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{ssTotal} total tiket</span>
+              </div>
+              <div className="card-body" style={{ height: '210px' }}>
+                <Line data={ssTrendData} options={chartOpts} />
+              </div>
+            </div>
+            <div className="card">
+              <div className="card-header" style={{ alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>🎧 Status Tiket Support</span>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)' }}>{ssTotal}</span>
+              </div>
+              <div className="card-body" style={{ height: '210px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Doughnut data={ssStatusData} options={{
+                  responsive: true, maintainAspectRatio: false, cutout: '60%',
+                  plugins: {
+                    legend: { position: 'bottom', labels: { font: { size: 10, family: 'Plus Jakarta Sans' }, padding: 8, boxWidth: 10, color: '#6b7280' } },
+                    tooltip: { bodyFont: { family: 'Plus Jakarta Sans', size: 11 } }
+                  }
+                }} />
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* ── Retur row ── */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '16px' }}>
 
@@ -555,6 +628,7 @@ const Dashboard = () => {
               { label: 'Retur TikTok', icon: <TikTokIcon size={20} />, path: '/retur-tiktok', color: '#8b5cf6' },
               { label: 'Retur Shopee', icon: <ShopeeIcon size={20} />, path: '/retur-shopee', color: '#ec4899' },
               { label: 'Laporan', icon: '📊', path: '/report', color: '#16a34a' },
+              { label: 'Sales Support', icon: '🎧', path: '/sales-support', color: '#0ea5e9' },
               { label: 'Pengaturan', icon: '⚙️', path: '/settings', color: '#6b7280' },
             ].map(item => (
               <button
