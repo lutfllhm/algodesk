@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const { createNotificationsForAllUsers } = require('../utils/notifications');
+const { normalizeOptionalDate } = require('../utils/dateNormalize');
 
 exports.getAll = async (req, res) => {
   try {
@@ -62,12 +63,15 @@ exports.create = async (req, res) => {
       kendala_diagnosa, kelengkapan, validasi, status, tgl_kembali
     } = req.body;
 
+    const tglMasuk = normalizeOptionalDate(tgl_masuk);
+    const tglKembaliNorm = normalizeOptionalDate(tgl_kembali);
+
     const [result] = await db.query(
       `INSERT INTO rusak (tgl_masuk, no_pesanan, tipe, nomor_seri,
        kendala_diagnosa, kelengkapan, validasi, status, tgl_kembali, created_by)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [tgl_masuk, no_pesanan, tipe, nomor_seri,
-       kendala_diagnosa, kelengkapan, validasi, status || 'Proses Servis', tgl_kembali, req.user.id]
+      [tglMasuk, no_pesanan, tipe, nomor_seri,
+       kendala_diagnosa, kelengkapan, validasi, status || 'Proses Servis', tglKembaliNorm, req.user.id]
     );
 
     await db.query(
@@ -98,12 +102,15 @@ exports.update = async (req, res) => {
       kendala_diagnosa, kelengkapan, validasi, status, tgl_kembali
     } = req.body;
 
+    const tglMasuk = normalizeOptionalDate(tgl_masuk);
+    const tglKembaliNorm = normalizeOptionalDate(tgl_kembali);
+
     const [result] = await db.query(
       `UPDATE rusak SET tgl_masuk=?, no_pesanan=?, tipe=?, nomor_seri=?,
        kendala_diagnosa=?, kelengkapan=?, validasi=?, status=?, tgl_kembali=?
        WHERE id = ?`,
-      [tgl_masuk, no_pesanan, tipe, nomor_seri,
-       kendala_diagnosa, kelengkapan, validasi, status, tgl_kembali, req.params.id]
+      [tglMasuk, no_pesanan, tipe, nomor_seri,
+       kendala_diagnosa, kelengkapan, validasi, status, tglKembaliNorm, req.params.id]
     );
 
     if (result.affectedRows === 0) {

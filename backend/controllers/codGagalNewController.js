@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const { createNotificationsForAllUsers } = require('../utils/notifications');
+const { normalizeOptionalDateTime } = require('../utils/dateNormalize');
 
 // =============================================
 // COD GAGAL TIKTOK
@@ -66,7 +67,7 @@ exports.createTiktok = async (req, res) => {
        f.shipping_fee_after_discount, f.original_shipping_fee, f.shipping_fee_seller_discount,
        f.shipping_fee_platform_discount, f.payment_platform_discount, f.buyer_service_fee,
        f.handling_fee, f.shipping_insurance, f.item_insurance, f.order_amount, f.order_refund_amount,
-       f.created_time, f.paid_time, f.rts_time, f.shipped_time, f.delivered_time, f.cancelled_time,
+       normalizeOptionalDateTime(f.created_time), normalizeOptionalDateTime(f.paid_time), normalizeOptionalDateTime(f.rts_time), normalizeOptionalDateTime(f.shipped_time), normalizeOptionalDateTime(f.delivered_time), normalizeOptionalDateTime(f.cancelled_time),
        f.cancel_by, f.cancel_reason, f.fulfillment_type, f.warehouse_name, f.tracking_id, req.user.id]
     );
 
@@ -116,7 +117,7 @@ exports.updateTiktok = async (req, res) => {
        f.shipping_fee_after_discount, f.original_shipping_fee, f.shipping_fee_seller_discount,
        f.shipping_fee_platform_discount, f.payment_platform_discount, f.buyer_service_fee,
        f.handling_fee, f.shipping_insurance, f.item_insurance, f.order_amount, f.order_refund_amount,
-       f.created_time, f.paid_time, f.rts_time, f.shipped_time, f.delivered_time, f.cancelled_time,
+       normalizeOptionalDateTime(f.created_time), normalizeOptionalDateTime(f.paid_time), normalizeOptionalDateTime(f.rts_time), normalizeOptionalDateTime(f.shipped_time), normalizeOptionalDateTime(f.delivered_time), normalizeOptionalDateTime(f.cancelled_time),
        f.cancel_by, f.cancel_reason, f.fulfillment_type, f.warehouse_name, f.tracking_id, req.params.id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Data not found' });
@@ -205,7 +206,7 @@ exports.createShopeeAlgoo = async (req, res) => {
        f.potongan_koin_shopee, f.diskon_kartu_kredit, f.ongkir_dibayar_pembeli,
        f.estimasi_potongan_biaya_pengiriman, f.ongkir_pengembalian_barang, f.total_pembayaran,
        f.perkiraan_ongkir, f.catatan_dari_pembeli, f.catatan, f.username_pembeli, f.nama_penerima,
-       f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi, f.waktu_pesanan_selesai,
+       f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi, normalizeOptionalDateTime(f.waktu_pesanan_selesai),
        req.user.id]
     );
 
@@ -252,7 +253,7 @@ exports.updateShopeeAlgoo = async (req, res) => {
        f.potongan_koin_shopee, f.diskon_kartu_kredit, f.ongkir_dibayar_pembeli,
        f.estimasi_potongan_biaya_pengiriman, f.ongkir_pengembalian_barang, f.total_pembayaran,
        f.perkiraan_ongkir, f.catatan_dari_pembeli, f.catatan, f.username_pembeli, f.nama_penerima,
-       f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi, f.waktu_pesanan_selesai,
+       f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi, normalizeOptionalDateTime(f.waktu_pesanan_selesai),
        req.params.id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Data not found' });
@@ -337,8 +338,8 @@ exports.createShopeeMami = async (req, res) => {
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
       [f.status_brg, f.dibukukan_accurate, f.no_pesanan, f.status_pesanan,
        f.status_pembatalan_pengembalian, f.status_pengiriman_gagal, f.no_resi,
-       f.opsi_pengiriman, f.antar_ke_counter, f.pesanan_harus_dikirim_sebelum,
-       f.waktu_pengiriman_diatur, f.sku_induk, f.nama_produk, f.nomor_referensi_sku,
+       f.opsi_pengiriman, f.antar_ke_counter, normalizeOptionalDateTime(f.pesanan_harus_dikirim_sebelum),
+       normalizeOptionalDateTime(f.waktu_pengiriman_diatur), f.sku_induk, f.nama_produk, f.nomor_referensi_sku,
        f.nama_variasi, f.harga_awal, f.harga_setelah_diskon, f.jumlah, f.returned_quantity,
        f.total_harga_produk, f.total_diskon, f.diskon_dari_penjual, f.diskon_dari_shopee,
        f.berat_produk, f.jumlah_produk_di_pesan, f.total_berat, f.voucher_ditanggung_penjual,
@@ -348,9 +349,9 @@ exports.createShopeeMami = async (req, res) => {
        f.ongkir_pengembalian_barang, f.total_pembayaran, f.perkiraan_ongkir,
        f.catatan_dari_pembeli, f.catatan, f.username_pembeli, f.nama_penerima,
        f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi,
-       f.waktu_pesanan_selesai, f.waktu_pesanan_dibuat, f.waktu_pembayaran_dilakukan,
-       f.metode_pembayaran, f.status_klaim, f.tanggal_klaim_diajukan, f.tanggal_klaim_disetujui,
-       f.tanggal_klaim_dicairkan, f.tanggal_klaim_ditolak, f.jumlah_kompensasi, req.user.id]
+       normalizeOptionalDateTime(f.waktu_pesanan_selesai), normalizeOptionalDateTime(f.waktu_pesanan_dibuat), normalizeOptionalDateTime(f.waktu_pembayaran_dilakukan),
+       f.metode_pembayaran, f.status_klaim, normalizeOptionalDateTime(f.tanggal_klaim_diajukan), normalizeOptionalDateTime(f.tanggal_klaim_disetujui),
+       normalizeOptionalDateTime(f.tanggal_klaim_dicairkan), normalizeOptionalDateTime(f.tanggal_klaim_ditolak), f.jumlah_kompensasi, req.user.id]
     );
 
     await createNotificationsForAllUsers({
@@ -392,8 +393,8 @@ exports.updateShopeeMami = async (req, res) => {
         jumlah_kompensasi=? WHERE id=?`,
       [f.status_brg, f.dibukukan_accurate, f.no_pesanan, f.status_pesanan,
        f.status_pembatalan_pengembalian, f.status_pengiriman_gagal, f.no_resi,
-       f.opsi_pengiriman, f.antar_ke_counter, f.pesanan_harus_dikirim_sebelum,
-       f.waktu_pengiriman_diatur, f.sku_induk, f.nama_produk, f.nomor_referensi_sku,
+       f.opsi_pengiriman, f.antar_ke_counter, normalizeOptionalDateTime(f.pesanan_harus_dikirim_sebelum),
+       normalizeOptionalDateTime(f.waktu_pengiriman_diatur), f.sku_induk, f.nama_produk, f.nomor_referensi_sku,
        f.nama_variasi, f.harga_awal, f.harga_setelah_diskon, f.jumlah, f.returned_quantity,
        f.total_harga_produk, f.total_diskon, f.diskon_dari_penjual, f.diskon_dari_shopee,
        f.berat_produk, f.jumlah_produk_di_pesan, f.total_berat, f.voucher_ditanggung_penjual,
@@ -403,9 +404,9 @@ exports.updateShopeeMami = async (req, res) => {
        f.ongkir_pengembalian_barang, f.total_pembayaran, f.perkiraan_ongkir,
        f.catatan_dari_pembeli, f.catatan, f.username_pembeli, f.nama_penerima,
        f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi,
-       f.waktu_pesanan_selesai, f.waktu_pesanan_dibuat, f.waktu_pembayaran_dilakukan,
-       f.metode_pembayaran, f.status_klaim, f.tanggal_klaim_diajukan, f.tanggal_klaim_disetujui,
-       f.tanggal_klaim_dicairkan, f.tanggal_klaim_ditolak, f.jumlah_kompensasi, req.params.id]
+       normalizeOptionalDateTime(f.waktu_pesanan_selesai), normalizeOptionalDateTime(f.waktu_pesanan_dibuat), normalizeOptionalDateTime(f.waktu_pembayaran_dilakukan),
+       f.metode_pembayaran, f.status_klaim, normalizeOptionalDateTime(f.tanggal_klaim_diajukan), normalizeOptionalDateTime(f.tanggal_klaim_disetujui),
+       normalizeOptionalDateTime(f.tanggal_klaim_dicairkan), normalizeOptionalDateTime(f.tanggal_klaim_ditolak), f.jumlah_kompensasi, req.params.id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Data not found' });
 
@@ -494,7 +495,7 @@ exports.createTiktokMami = async (req, res) => {
        f.potongan_koin_shopee, f.diskon_kartu_kredit, f.ongkir_dibayar_pembeli,
        f.estimasi_potongan_biaya_pengiriman, f.ongkir_pengembalian_barang, f.total_pembayaran,
        f.perkiraan_ongkir, f.catatan_dari_pembeli, f.catatan, f.username_pembeli, f.nama_penerima,
-       f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi, f.waktu_pesanan_selesai,
+       f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi, normalizeOptionalDateTime(f.waktu_pesanan_selesai),
        req.user.id]
     );
 
@@ -541,7 +542,7 @@ exports.updateTiktokMami = async (req, res) => {
        f.potongan_koin_shopee, f.diskon_kartu_kredit, f.ongkir_dibayar_pembeli,
        f.estimasi_potongan_biaya_pengiriman, f.ongkir_pengembalian_barang, f.total_pembayaran,
        f.perkiraan_ongkir, f.catatan_dari_pembeli, f.catatan, f.username_pembeli, f.nama_penerima,
-       f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi, f.waktu_pesanan_selesai,
+       f.no_telepon, f.alamat_pengiriman, f.kota_kabupaten, f.provinsi, normalizeOptionalDateTime(f.waktu_pesanan_selesai),
        req.params.id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Data not found' });

@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const { createNotificationsForAllUsers } = require('../utils/notifications');
+const { normalizeOptionalDate } = require('../utils/dateNormalize');
 
 exports.getAll = async (req, res) => {
   try {
@@ -54,11 +55,12 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const { tgl, marketplace, no_order, nama_barang_awal, qty, nama_barang_diganti, keterangan } = req.body;
+    const tglNorm = normalizeOptionalDate(tgl);
 
     const [result] = await db.query(
       `INSERT INTO pergantian_barang (tgl, marketplace, no_order, nama_barang_awal, qty, nama_barang_diganti, keterangan, created_by)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [tgl, marketplace, no_order, nama_barang_awal, qty || 1, nama_barang_diganti, keterangan, req.user.id]
+      [tglNorm, marketplace, no_order, nama_barang_awal, qty || 1, nama_barang_diganti, keterangan, req.user.id]
     );
 
     await createNotificationsForAllUsers({
@@ -80,11 +82,12 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { tgl, marketplace, no_order, nama_barang_awal, qty, nama_barang_diganti, keterangan } = req.body;
+    const tglNorm = normalizeOptionalDate(tgl);
 
     const [result] = await db.query(
       `UPDATE pergantian_barang SET tgl=?, marketplace=?, no_order=?, nama_barang_awal=?, qty=?, nama_barang_diganti=?, keterangan=?
        WHERE id = ?`,
-      [tgl, marketplace, no_order, nama_barang_awal, qty, nama_barang_diganti, keterangan, req.params.id]
+      [tglNorm, marketplace, no_order, nama_barang_awal, qty, nama_barang_diganti, keterangan, req.params.id]
     );
 
     if (result.affectedRows === 0) {

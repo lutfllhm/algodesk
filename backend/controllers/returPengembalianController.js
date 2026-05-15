@@ -1,22 +1,11 @@
 const db = require('../config/database');
 const { createNotificationsForAllUsers } = require('../utils/notifications');
+const { normalizeOptionalDate } = require('../utils/dateNormalize');
 
 const TABLE = 'retur_pengembalian';
 
 const PROSES_VALUES = new Set(['Banding', 'Selesai', 'Tidak Banding']);
 const GUDANG_VALUES = new Set(['Surabaya', 'Jakarta']);
-
-function normalizeTglOrder(value) {
-  if (value === undefined || value === null) return null;
-  const s = String(value).trim();
-  if (!s) return null;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
-  if (m) return m[1];
-  const d = new Date(s);
-  if (Number.isNaN(d.getTime())) return null;
-  return d.toISOString().slice(0, 10);
-}
 
 function normalizeProses(value) {
   const v = value != null ? String(value).trim() : '';
@@ -80,7 +69,7 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const { tgl_order, nama_akun, no_order, no_retur, produk, kendala, proses, keterangan, gudang } = req.body;
-    const tgl = normalizeTglOrder(tgl_order);
+    const tgl = normalizeOptionalDate(tgl_order);
     const pros = normalizeProses(proses);
     const gud = normalizeGudang(gudang);
     const [result] = await db.query(
@@ -108,7 +97,7 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { tgl_order, nama_akun, no_order, no_retur, produk, kendala, proses, keterangan, gudang } = req.body;
-    const tgl = normalizeTglOrder(tgl_order);
+    const tgl = normalizeOptionalDate(tgl_order);
     const pros = normalizeProses(proses);
     const gud = normalizeGudang(gudang);
     const [result] = await db.query(

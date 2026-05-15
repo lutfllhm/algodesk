@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const { createNotificationsForAllUsers } = require('../utils/notifications');
+const { normalizeOptionalDate } = require('../utils/dateNormalize');
 
 exports.getAll = async (req, res) => {
   try {
@@ -59,14 +60,18 @@ exports.create = async (req, res) => {
       tgl_selesai_servis, hasil_akhir, tgl_kembali_stok, keterangan
     } = req.body;
 
+    const tglServis = normalizeOptionalDate(tgl_servis);
+    const tglSelesai = normalizeOptionalDate(tgl_selesai_servis);
+    const tglKembali = normalizeOptionalDate(tgl_kembali_stok);
+
     const [result] = await db.query(
       `INSERT INTO blp (no, marketplace, no_pesanan, alasan_retur, produk, serial_number,
        kondisi_barang, kelengkapan, diagnosa, validasi, status, tgl_servis, tgl_selesai_servis,
        hasil_akhir, tgl_kembali_stok, keterangan, created_by)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [no, marketplace, no_pesanan, alasan_retur, produk, serial_number,
-       kondisi_barang, kelengkapan, diagnosa, validasi, status || 'Service', tgl_servis,
-       tgl_selesai_servis, hasil_akhir || 'Proses Service', tgl_kembali_stok, keterangan, req.user.id]
+       kondisi_barang, kelengkapan, diagnosa, validasi, status || 'Service', tglServis,
+       tglSelesai, hasil_akhir || 'Proses Service', tglKembali, keterangan, req.user.id]
     );
 
     await createNotificationsForAllUsers({
@@ -93,14 +98,18 @@ exports.update = async (req, res) => {
       tgl_selesai_servis, hasil_akhir, tgl_kembali_stok, keterangan
     } = req.body;
 
+    const tglServis = normalizeOptionalDate(tgl_servis);
+    const tglSelesai = normalizeOptionalDate(tgl_selesai_servis);
+    const tglKembali = normalizeOptionalDate(tgl_kembali_stok);
+
     const [result] = await db.query(
       `UPDATE blp SET no=?, marketplace=?, no_pesanan=?, alasan_retur=?, produk=?,
        serial_number=?, kondisi_barang=?, kelengkapan=?, diagnosa=?, validasi=?, status=?,
        tgl_servis=?, tgl_selesai_servis=?, hasil_akhir=?, tgl_kembali_stok=?, keterangan=?
        WHERE id = ?`,
       [no, marketplace, no_pesanan, alasan_retur, produk, serial_number,
-       kondisi_barang, kelengkapan, diagnosa, validasi, status, tgl_servis,
-       tgl_selesai_servis, hasil_akhir, tgl_kembali_stok, keterangan, req.params.id]
+       kondisi_barang, kelengkapan, diagnosa, validasi, status, tglServis,
+       tglSelesai, hasil_akhir, tglKembali, keterangan, req.params.id]
     );
 
     if (result.affectedRows === 0) {

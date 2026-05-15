@@ -1,5 +1,6 @@
 const db = require('../config/database');
 const { createNotificationsForAllUsers } = require('../utils/notifications');
+const { normalizeOptionalDate } = require('../utils/dateNormalize');
 
 const STATUS_OPTIONS = ['Open', 'In Progress', 'Resolved', 'Closed'];
 const MARKETPLACE_OPTIONS = ['Shopee', 'TiktokShop', 'Tokopedia', 'Lazada', 'Lainnya'];
@@ -69,13 +70,14 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const { tanggal, nomor_wa, marketplace, no_pesanan, produk, keluhan, masalah, metode_solusi, status } = req.body;
+    const tanggalNorm = normalizeOptionalDate(tanggal);
 
     const [result] = await db.query(
       `INSERT INTO sales_support
         (tanggal, nomor_wa, marketplace, no_pesanan, produk, keluhan, masalah, metode_solusi, status, created_by)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        tanggal || null,
+        tanggalNorm,
         nomor_wa || null,
         marketplace || null,
         no_pesanan || null,
@@ -107,13 +109,14 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { tanggal, nomor_wa, marketplace, no_pesanan, produk, keluhan, masalah, metode_solusi, status } = req.body;
+    const tanggalNorm = normalizeOptionalDate(tanggal);
 
     const [result] = await db.query(
       `UPDATE sales_support
        SET tanggal=?, nomor_wa=?, marketplace=?, no_pesanan=?, produk=?, keluhan=?, masalah=?, metode_solusi=?, status=?
        WHERE id = ?`,
       [
-        tanggal || null,
+        tanggalNorm,
         nomor_wa || null,
         marketplace || null,
         no_pesanan || null,
