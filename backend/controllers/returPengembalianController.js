@@ -3,6 +3,31 @@ const { createNotificationsForAllUsers } = require('../utils/notifications');
 
 const TABLE = 'retur_pengembalian';
 
+const PROSES_VALUES = new Set(['Banding', 'Selesai', 'Tidak Banding']);
+const GUDANG_VALUES = new Set(['Surabaya', 'Jakarta']);
+
+function normalizeTglOrder(value) {
+  if (value === undefined || value === null) return null;
+  const s = String(value).trim();
+  if (!s) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const m = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (m) return m[1];
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString().slice(0, 10);
+}
+
+function normalizeProses(value) {
+  const v = value != null ? String(value).trim() : '';
+  return PROSES_VALUES.has(v) ? v : 'Tidak Banding';
+}
+
+function normalizeGudang(value) {
+  const v = value != null ? String(value).trim() : '';
+  return GUDANG_VALUES.has(v) ? v : 'Jakarta';
+}
+
 exports.getAll = async (req, res) => {
   try {
     const { page = 1, limit = 10, search = '', proses = '' } = req.query;
@@ -55,10 +80,13 @@ exports.getById = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     const { tgl_order, nama_akun, no_order, no_retur, produk, kendala, proses, keterangan, gudang } = req.body;
+    const tgl = normalizeTglOrder(tgl_order);
+    const pros = normalizeProses(proses);
+    const gud = normalizeGudang(gudang);
     const [result] = await db.query(
       `INSERT INTO ${TABLE} (tgl_order, nama_akun, no_order, no_retur, produk, kendala, proses, keterangan, gudang, created_by)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [tgl_order, nama_akun, no_order, no_retur, produk, kendala, proses || 'Tidak Banding', keterangan, gudang || 'Jakarta', req.user.id]
+      [tgl, nama_akun, no_order, no_retur, produk, kendala, pros, keterangan, gud, req.user.id]
     );
 
     await createNotificationsForAllUsers({
@@ -80,9 +108,12 @@ exports.create = async (req, res) => {
 exports.update = async (req, res) => {
   try {
     const { tgl_order, nama_akun, no_order, no_retur, produk, kendala, proses, keterangan, gudang } = req.body;
+    const tgl = normalizeTglOrder(tgl_order);
+    const pros = normalizeProses(proses);
+    const gud = normalizeGudang(gudang);
     const [result] = await db.query(
       `UPDATE ${TABLE} SET tgl_order=?, nama_akun=?, no_order=?, no_retur=?, produk=?, kendala=?, proses=?, keterangan=?, gudang=? WHERE id = ?`,
-      [tgl_order, nama_akun, no_order, no_retur, produk, kendala, proses, keterangan, gudang, req.params.id]
+      [tgl, nama_akun, no_order, no_retur, produk, kendala, pros, keterangan, gud, req.params.id]
     );
     if (result.affectedRows === 0) return res.status(404).json({ success: false, message: 'Data not found' });
 

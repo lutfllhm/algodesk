@@ -12,6 +12,20 @@ const PROSES_OPTIONS = ['Banding', 'Selesai', 'Tidak Banding'];
 const GUDANG_OPTIONS = ['Surabaya', 'Jakarta'];
 const EMPTY_FORM = { tgl_order: '', nama_akun: '', no_order: '', no_retur: '', produk: '', kendala: '', proses: 'Tidak Banding', keterangan: '', gudang: 'Jakarta' };
 
+function toDateInputValue(v) {
+  if (v == null || v === '') return '';
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const isoPrefix = s.match(/^(\d{4}-\d{2}-\d{2})([T\s]|$)/);
+  if (isoPrefix) return isoPrefix[1];
+  const d = new Date(s);
+  if (Number.isNaN(d.getTime())) return '';
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 const ProsesBadge = ({ proses }) => {
   const map = { 'Banding': { bg: '#fef3c7', color: '#d97706' }, 'Selesai': { bg: '#d1fae5', color: '#059669' }, 'Tidak Banding': { bg: '#fee2e2', color: '#dc2626' } };
   const style = map[proses] || {};
@@ -48,7 +62,10 @@ const ReturShopee = () => {
   useEffect(() => { const t = setTimeout(() => fetchData(1), 300); return () => clearTimeout(t); }, [search, filterProses, dateFrom, dateTo]);
 
   const openAdd = () => { setForm(EMPTY_FORM); setModal({ open: true, mode: 'add', data: null }); };
-  const openEdit = (row) => { setForm({ ...row }); setModal({ open: true, mode: 'edit', data: row }); };
+  const openEdit = (row) => {
+    setForm({ ...row, tgl_order: toDateInputValue(row.tgl_order) });
+    setModal({ open: true, mode: 'edit', data: row });
+  };
 
   const handleSave = async () => {
     if (!form.no_order) { toast.error('No Order wajib diisi'); return; }
@@ -59,11 +76,18 @@ const ReturShopee = () => {
     }
     setSaving(true);
     try {
-      if (modal.mode === 'add') { await api.post('/retur/shopee', form); toast.success('Retur Shopee berhasil ditambahkan'); }
-      else { await api.put(`/retur/shopee/${editId}`, form); toast.success('Retur Shopee berhasil diperbarui'); }
+      const tglTrim = form.tgl_order != null ? String(form.tgl_order).trim() : '';
+      const payload = {
+        ...form,
+        tgl_order: tglTrim || null,
+        proses: form.proses || 'Tidak Banding',
+        gudang: form.gudang || 'Jakarta',
+      };
+      if (modal.mode === 'add') { await api.post('/retur/shopee', payload); toast.success('Retur Shopee berhasil ditambahkan'); }
+      else { await api.put(`/retur/shopee/${editId}`, payload); toast.success('Retur Shopee berhasil diperbarui'); }
       setModal({ open: false, mode: 'add', data: null });
       fetchData(pagination.page);
-    } catch (err) { toast.error('Gagal menyimpan data'); }
+    } catch (err) { toast.error(err.response?.data?.message || 'Gagal menyimpan data'); }
     finally { setSaving(false); }
   };
 
