@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
+import { getRecordId } from '../utils/recordId';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
@@ -60,13 +61,18 @@ const BLP = () => {
 
   const handleSave = async () => {
     if (!form.produk) { toast.error('Produk wajib diisi'); return; }
+    const editId = modal.mode === 'edit' ? getRecordId(modal, form) : null;
+    if (modal.mode === 'edit' && editId == null) {
+      toast.error('ID data tidak ditemukan. Muat ulang halaman lalu coba edit lagi.');
+      return;
+    }
     setSaving(true);
     try {
       if (modal.mode === 'add') {
         await api.post('/blp', form);
         toast.success('Data BLP berhasil ditambahkan');
       } else {
-        await api.put(`/blp/${modal.data.id}`, form);
+        await api.put(`/blp/${editId}`, form);
         toast.success('Data BLP berhasil diperbarui');
       }
       setModal({ open: false, mode: 'add', data: null });

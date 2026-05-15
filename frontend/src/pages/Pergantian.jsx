@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
+import { getRecordId } from '../utils/recordId';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
@@ -38,10 +39,15 @@ const Pergantian = () => {
 
   const handleSave = async () => {
     if (!form.no_order || !form.nama_barang_awal) { toast.error('No Order dan Nama Barang Awal wajib diisi'); return; }
+    const editId = modal.mode === 'edit' ? getRecordId(modal, form) : null;
+    if (modal.mode === 'edit' && editId == null) {
+      toast.error('ID data tidak ditemukan. Muat ulang halaman lalu coba edit lagi.');
+      return;
+    }
     setSaving(true);
     try {
       if (modal.mode === 'add') { await api.post('/pergantian', form); toast.success('Data berhasil ditambahkan'); }
-      else { await api.put(`/pergantian/${modal.data.id}`, form); toast.success('Data berhasil diperbarui'); }
+      else { await api.put(`/pergantian/${editId}`, form); toast.success('Data berhasil diperbarui'); }
       setModal({ open: false, mode: 'add', data: null });
       fetchData(pagination.page);
     } catch (err) { toast.error('Gagal menyimpan data'); }

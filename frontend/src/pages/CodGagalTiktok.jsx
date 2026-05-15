@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
+import { getRecordId } from '../utils/recordId';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
@@ -55,13 +56,18 @@ const CodGagalTiktok = () => {
 
   const handleSave = async () => {
     if (!form.order_id) { toast.error('Order ID wajib diisi'); return; }
+    const editId = modal.mode === 'edit' ? getRecordId(modal, form) : null;
+    if (modal.mode === 'edit' && editId == null) {
+      toast.error('ID data tidak ditemukan. Muat ulang halaman lalu coba edit lagi.');
+      return;
+    }
     setSaving(true);
     try {
       if (modal.mode === 'add') {
         await api.post('/cod-gagal-new/tiktok', form);
         toast.success('Data berhasil ditambahkan');
       } else {
-        await api.put(`/cod-gagal-new/tiktok/${modal.data.id}`, form);
+        await api.put(`/cod-gagal-new/tiktok/${editId}`, form);
         toast.success('Data berhasil diperbarui');
       }
       setModal({ open: false, mode: 'add', data: null });

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
+import { getRecordId } from '../utils/recordId';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
@@ -129,13 +130,18 @@ const DariCustomer = () => {
   };
 
   const handleSave = async () => {
+    const editId = modal.mode === 'edit' ? getRecordId(modal, form) : null;
+    if (modal.mode === 'edit' && editId == null) {
+      toast.error('ID data tidak ditemukan. Muat ulang halaman lalu coba edit lagi.');
+      return;
+    }
     setSaving(true);
     try {
       if (modal.mode === 'add') {
         await api.post('/dari-customer', form);
         toast.success('Data berhasil ditambahkan');
       } else {
-        await api.put(`/dari-customer/${modal.data.id}`, form);
+        await api.put(`/dari-customer/${editId}`, form);
         toast.success('Data berhasil diperbarui');
       }
       setModal({ open: false, mode: 'add', data: null });

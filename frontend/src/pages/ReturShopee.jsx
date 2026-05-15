@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
+import { getRecordId } from '../utils/recordId';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
@@ -51,10 +52,15 @@ const ReturShopee = () => {
 
   const handleSave = async () => {
     if (!form.no_order) { toast.error('No Order wajib diisi'); return; }
+    const editId = modal.mode === 'edit' ? getRecordId(modal, form) : null;
+    if (modal.mode === 'edit' && editId == null) {
+      toast.error('ID data tidak ditemukan. Muat ulang halaman lalu coba edit lagi.');
+      return;
+    }
     setSaving(true);
     try {
       if (modal.mode === 'add') { await api.post('/retur/shopee', form); toast.success('Retur Shopee berhasil ditambahkan'); }
-      else { await api.put(`/retur/shopee/${modal.data.id}`, form); toast.success('Retur Shopee berhasil diperbarui'); }
+      else { await api.put(`/retur/shopee/${editId}`, form); toast.success('Retur Shopee berhasil diperbarui'); }
       setModal({ open: false, mode: 'add', data: null });
       fetchData(pagination.page);
     } catch (err) { toast.error('Gagal menyimpan data'); }

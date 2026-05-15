@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
+import { getRecordId } from '../utils/recordId';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
 import { getUser } from '../utils/auth';
@@ -52,7 +53,12 @@ const Users = () => {
         await api.post('/users', form);
         toast.success('User berhasil ditambahkan');
       } else {
-        await api.put(`/users/${modal.data.id}`, { full_name: form.full_name, email: form.email, role: form.role, is_active: form.is_active });
+        const editId = getRecordId(modal, form);
+        if (editId == null) {
+          toast.error('ID data tidak ditemukan. Muat ulang halaman lalu coba edit lagi.');
+          return;
+        }
+        await api.put(`/users/${editId}`, { full_name: form.full_name, email: form.email, role: form.role, is_active: form.is_active });
         toast.success('User berhasil diperbarui');
       }
       setModal({ open: false, mode: 'add', data: null });
