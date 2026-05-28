@@ -164,7 +164,7 @@ async function ensureTables() {
       buyer_username VARCHAR(150),
       recipient VARCHAR(150),
       phone VARCHAR(100),
-      zipcode VARCHAR(20),
+      zipcode VARCHAR(100),
       country VARCHAR(100),
       province VARCHAR(150),
       regency_and_city VARCHAR(150),
@@ -223,6 +223,9 @@ async function ensureTables() {
   for (const col of codGagalTiktokCols) {
     await tryQuery(`ALTER TABLE cod_gagal_tiktok ADD COLUMN ${col.name} ${col.type}`);
   }
+
+  // Ensure zipcode column can support up to 100 characters in existing setups
+  await tryQuery(`ALTER TABLE cod_gagal_tiktok MODIFY COLUMN zipcode VARCHAR(100)`);
 
   // COD Gagal Shopee Algoo
   await tryQuery(`

@@ -59,29 +59,35 @@ const MONTH_MAP = {
 };
 
 const parseDate = (val) => {
-  if (!val) return null;
-  // Excel serial number
-  if (typeof val === 'number') {
-    const d = xlsx.SSF.parse_date_code(val);
-    if (d) {
-      const mm = String(d.m).padStart(2, '0');
-      const dd = String(d.d).padStart(2, '0');
-      return `${d.y}-${mm}-${dd}`;
-    }
+  if (val === undefined || val === null || val === '') return null;
+  
+  // Clean string or number representation
+  const sVal = String(val).trim();
+  if (sVal === '' || sVal === '0') return null;
+
+  // Check if it is a raw number (or numeric string) representing Excel date serial
+  const numVal = Number(sVal);
+  if (!isNaN(numVal) && isFinite(numVal)) {
+    if (numVal <= 0) return null;
+    try {
+      const d = xlsx.SSF.parse_date_code(numVal);
+      if (d) {
+        const mm = String(d.m).padStart(2, '0');
+        const dd = String(d.d).padStart(2, '0');
+        return `${d.y}-${mm}-${dd}`;
+      }
+    } catch (e) {}
   }
-  // String date
-  const s = String(val).trim();
-  if (!s) return null;
 
   // Already YYYY-MM-DD or YYYY-MM-DD HH:mm:ss
-  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+  if (/^\d{4}-\d{2}-\d{2}/.test(sVal)) return sVal.slice(0, 10);
 
   // DD/MM/YYYY or DD-MM-YYYY
-  const m1 = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+  const m1 = sVal.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
   if (m1) return `${m1[3]}-${m1[2].padStart(2, '0')}-${m1[1].padStart(2, '0')}`;
 
   // DD-MMM (e.g. "08-May", "28-Apr", "12-Jul") — no year, use current year
-  const m2 = s.match(/^(\d{1,2})[\/\-]([a-zA-Z]{3,})$/);
+  const m2 = sVal.match(/^(\d{1,2})[\/\-]([a-zA-Z]{3,})$/);
   if (m2) {
     const dd = m2[1].padStart(2, '0');
     const mon = MONTH_MAP[m2[2].toLowerCase().slice(0, 3)];
@@ -92,7 +98,7 @@ const parseDate = (val) => {
   }
 
   // DD-MMM-YYYY or DD/MMM/YYYY (e.g. "08-May-2025")
-  const m3 = s.match(/^(\d{1,2})[\/\-]([a-zA-Z]{3,})[\/\-](\d{4})/);
+  const m3 = sVal.match(/^(\d{1,2})[\/\-]([a-zA-Z]{3,})[\/\-](\d{4})/);
   if (m3) {
     const dd = m3[1].padStart(2, '0');
     const mon = MONTH_MAP[m3[2].toLowerCase().slice(0, 3)];
@@ -100,7 +106,7 @@ const parseDate = (val) => {
   }
 
   // MMM DD, YYYY (e.g. "May 8, 2025")
-  const m4 = s.match(/^([a-zA-Z]{3,})\s+(\d{1,2}),?\s+(\d{4})/);
+  const m4 = sVal.match(/^([a-zA-Z]{3,})\s+(\d{1,2}),?\s+(\d{4})/);
   if (m4) {
     const mon = MONTH_MAP[m4[1].toLowerCase().slice(0, 3)];
     if (mon) return `${m4[3]}-${mon}-${m4[2].padStart(2, '0')}`;
@@ -348,7 +354,7 @@ const MODULE_CONFIGS = {
       buyer_username:                   pick(row, 'buyer_username', 'buyer username'),
       recipient:                        pick(row, 'recipient'),
       phone:                            pick(row, 'phone', 'phone #'),
-      zipcode:                          pick(row, 'zipcode'),
+      zipcode:                          pick(row, 'zipcode') ? String(pick(row, 'zipcode')).slice(0, 100) : null,
       country:                          pick(row, 'country'),
       province:                         pick(row, 'province'),
       regency_and_city:                 pick(row, 'regency_and_city', 'regency and city'),
@@ -383,12 +389,12 @@ const MODULE_CONFIGS = {
       item_insurance:                   parseCleanDecimal(pick(row, 'item_insurance', 'item insurance')),
       order_amount:                     parseCleanDecimal(pick(row, 'order_amount', 'order amount')),
       order_refund_amount:              parseCleanDecimal(pick(row, 'order_refund_amount', 'order refund amount')),
-      created_time:                     pick(row, 'created_time', 'created time') || null,
-      paid_time:                        pick(row, 'paid_time', 'paid time') || null,
-      rts_time:                         pick(row, 'rts_time', 'rts time') || null,
-      shipped_time:                     pick(row, 'shipped_time', 'shipped time') || null,
-      delivered_time:                   pick(row, 'delivered_time', 'delivered time') || null,
-      cancelled_time:                   pick(row, 'cancelled_time', 'cancelled time') || null,
+      created_time:                     parseDate(pick(row, 'created_time', 'created time')),
+      paid_time:                        parseDate(pick(row, 'paid_time', 'paid time')),
+      rts_time:                         parseDate(pick(row, 'rts_time', 'rts time')),
+      shipped_time:                     parseDate(pick(row, 'shipped_time', 'shipped time')),
+      delivered_time:                   parseDate(pick(row, 'delivered_time', 'delivered time')),
+      cancelled_time:                   parseDate(pick(row, 'cancelled_time', 'cancelled time')),
       cancel_by:                        pick(row, 'cancel_by', 'cancel by'),
       cancel_reason:                    pick(row, 'cancel_reason', 'cancel reason'),
       fulfillment_type:                 pick(row, 'fulfillment_type', 'fulfillment type'),
@@ -445,7 +451,7 @@ const MODULE_CONFIGS = {
       alamat_pengiriman:                   pick(row, 'alamat_pengiriman', 'alamat pengiriman'),
       kota_kabupaten:                      pick(row, 'kota_kabupaten', 'kotakabupaten'),
       provinsi:                            pick(row, 'provinsi'),
-      waktu_pesanan_selesai:               pick(row, 'waktu_pesanan_selesai', 'waktu pesanan selesai') || null,
+      waktu_pesanan_selesai:               parseDate(pick(row, 'waktu_pesanan_selesai', 'waktu pesanan selesai')),
     }),
   },
 
@@ -462,8 +468,8 @@ const MODULE_CONFIGS = {
       no_resi:                             pick(row, 'no_resi', 'no resi', 'no. resi'),
       opsi_pengiriman:                     pick(row, 'opsi_pengiriman', 'opsi pengiriman'),
       antar_ke_counter:                    pick(row, 'antar_ke_counter', 'antar ke counter pick-up', 'antar ke counter/ pickup'),
-      pesanan_harus_dikirim_sebelum:       pick(row, 'pesanan_harus_dikirim_sebelum', 'pesanan harus dikirimkan sebelum') || null,
-      waktu_pengiriman_diatur:             pick(row, 'waktu_pengiriman_diatur', 'waktu pengiriman diatur') || null,
+      pesanan_harus_dikirim_sebelum:       parseDate(pick(row, 'pesanan_harus_dikirim_sebelum', 'pesanan harus dikirimkan sebelum')),
+      waktu_pengiriman_diatur:             parseDate(pick(row, 'waktu_pengiriman_diatur', 'waktu pengiriman diatur')),
       sku_induk:                           pick(row, 'sku_induk', 'sku induk'),
       nama_produk:                         pick(row, 'nama_produk', 'nama produk'),
       nomor_referensi_sku:                 pick(row, 'nomor_referensi_sku', 'nomor referensi sku'),
@@ -500,9 +506,9 @@ const MODULE_CONFIGS = {
       alamat_pengiriman:                   pick(row, 'alamat_pengiriman', 'alamat pengiriman'),
       kota_kabupaten:                      pick(row, 'kota_kabupaten', 'kotakabupaten'),
       provinsi:                            pick(row, 'provinsi'),
-      waktu_pesanan_selesai:               pick(row, 'waktu_pesanan_selesai', 'waktu pesanan selesai') || null,
-      waktu_pesanan_dibuat:                pick(row, 'waktu_pesanan_dibuat', 'waktu pesanan dibuat') || null,
-      waktu_pembayaran_dilakukan:          pick(row, 'waktu_pembayaran_dilakukan', 'waktu pembayaran dilakukan') || null,
+      waktu_pesanan_selesai:               parseDate(pick(row, 'waktu_pesanan_selesai', 'waktu pesanan selesai')),
+      waktu_pesanan_dibuat:                parseDate(pick(row, 'waktu_pesanan_dibuat', 'waktu pesanan dibuat')),
+      waktu_pembayaran_dilakukan:          parseDate(pick(row, 'waktu_pembayaran_dilakukan', 'waktu pembayaran dilakukan')),
       metode_pembayaran:                   pick(row, 'metode_pembayaran', 'metode pembayaran'),
       status_klaim:                        pick(row, 'status_klaim', 'status klaim'),
       tanggal_klaim_diajukan:              parseDate(pick(row, 'tanggal_klaim_diajukan', 'tanggal klaim diajukan')),
@@ -562,7 +568,7 @@ const MODULE_CONFIGS = {
       alamat_pengiriman:                   pick(row, 'alamat_pengiriman', 'alamat pengiriman', 'detail_address', 'detail address'),
       kota_kabupaten:                      pick(row, 'kota_kabupaten', 'kotakabupaten', 'regency_and_city', 'regency and city'),
       provinsi:                            pick(row, 'provinsi', 'province'),
-      waktu_pesanan_selesai:               pick(row, 'waktu_pesanan_selesai', 'waktu pesanan selesai') || null,
+      waktu_pesanan_selesai:               parseDate(pick(row, 'waktu_pesanan_selesai', 'waktu pesanan selesai')),
     }),
   },
 };
