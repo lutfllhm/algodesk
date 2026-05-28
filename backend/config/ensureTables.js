@@ -23,7 +23,7 @@ async function tryQuery(sql) {
 
 // Like tryQuery but never throws — used for migrations that may fail on some DB states
 async function safeQuery(sql) {
-  try { await db.query(sql); } catch (_) {}
+  try { await db.query(sql); } catch (_) { }
 }
 
 async function ensureTables() {
@@ -149,12 +149,12 @@ async function ensureTables() {
   await tryQuery(`ALTER TABLE rusak ADD COLUMN nomor_seri VARCHAR(150)`);
   await tryQuery(`ALTER TABLE rusak ADD COLUMN kendala_diagnosa TEXT`);
   await tryQuery(`ALTER TABLE rusak ADD COLUMN tgl_kembali DATE`);
-  
+
   // Migrate old status values to new ENUM before MODIFY
   await safeQuery(`UPDATE rusak SET status = 'Proses Servis' WHERE status = 'Service'`);
   await safeQuery(`UPDATE rusak SET status = 'Gudang Rusak' WHERE status = 'Error'`);
   await safeQuery(`UPDATE rusak SET status = 'Kembali ke Stok/Customer' WHERE status = 'Selesai'`);
-  
+
   // Now safe to MODIFY ENUM
   await safeQuery(
     `ALTER TABLE rusak MODIFY COLUMN status ENUM('Proses Servis','Gudang Rusak','Kembali ke Stok/Customer') DEFAULT 'Proses Servis'`
