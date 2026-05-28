@@ -45,4 +45,7 @@ router.post('/:module', upload.single('file'), importController.importExcel);
 // GET /api/import/template/:module  — download template
 router.get('/template/:module', importController.downloadTemplate);
 
+// DELETE /api/import/truncate/:module  — delete all data in module
+router.delete('/truncate/:module', importController.truncateModule);
+
 module.exports = router;

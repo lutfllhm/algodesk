@@ -104,6 +104,46 @@ async function ensureTables() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   `);
 
+  // COD Gagal (Legacy / General)
+  await tryQuery(`
+    CREATE TABLE IF NOT EXISTS cod_gagal (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      tgl_order DATE,
+      nama_akun VARCHAR(150),
+      no_order VARCHAR(100),
+      no_retur VARCHAR(100),
+      produk VARCHAR(150),
+      kendala TEXT,
+      proses ENUM('Banding','Selesai','Tidak Banding') DEFAULT 'Tidak Banding',
+      keterangan TEXT,
+      gudang ENUM('Surabaya','Jakarta') DEFAULT 'Jakarta',
+      created_by INT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
+  // Retur Pengembalian
+  await tryQuery(`
+    CREATE TABLE IF NOT EXISTS retur_pengembalian (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      tgl_order DATE,
+      nama_akun VARCHAR(150),
+      no_order VARCHAR(100),
+      no_retur VARCHAR(100),
+      produk VARCHAR(150),
+      kendala TEXT,
+      proses ENUM('Banding','Selesai','Tidak Banding') DEFAULT 'Tidak Banding',
+      keterangan TEXT,
+      gudang ENUM('Surabaya','Jakarta') DEFAULT 'Jakarta',
+      created_by INT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  `);
+
   // Servis & Rusak — Dari Retur (legacy installs may miss new columns)
   await tryQuery(`ALTER TABLE rusak ADD COLUMN tipe VARCHAR(150)`);
   await tryQuery(`ALTER TABLE rusak ADD COLUMN nomor_seri VARCHAR(150)`);

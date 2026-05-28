@@ -746,3 +746,48 @@ exports.downloadTemplate = (req, res) => {
   res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
   res.send(buf);
 };
+
+exports.truncateModule = async (req, res) => {
+  const { module } = req.params;
+  const TRUNCATE_ALLOWED_MODULES = {
+    'rusak': 'rusak',
+    'dari-customer': 'dari_customer',
+    'blp': 'blp',
+    'cancel': 'orderan_cancel',
+    'pergantian': 'pergantian_barang',
+    'tiket-tiktok': 'tiket_tiktok',
+    'tiket-shopee': 'tiket_shopee',
+    'retur-tiktok': 'retur_tiktok',
+    'retur-shopee': 'retur_shopee',
+    'cod-gagal': 'cod_gagal',
+    'retur-pengembalian': 'retur_pengembalian',
+    'cod-gagal-tiktok': 'cod_gagal_tiktok',
+    'cod-gagal-shopee-algoo': 'cod_gagal_shopee_algoo',
+    'cod-gagal-shopee-mami': 'cod_gagal_shopee_mami_kasir',
+    'cod-gagal-tiktok-mami': 'cod_gagal_tiktok_mami_kasir',
+    'sales-support': 'sales_support'
+  };
+
+  const tableName = TRUNCATE_ALLOWED_MODULES[module];
+
+  if (!tableName) {
+    return res.status(400).json({ success: false, message: `Modul "${module}" tidak dikenali atau tidak diizinkan untuk dikosongkan` });
+  }
+
+  try {
+    await db.query(`TRUNCATE TABLE ${tableName}`);
+    
+    // Add activity log
+    const userId = req.user?.id || null;
+    const username = req.user?.username || 'System';
+    await db.query(
+      'INSERT INTO activity_log (user_id, action, module, description) VALUES (?, ?, ?, ?)',
+      [userId, 'DELETE_ALL', tableName, `${username} menghapus semua data pada tabel ${tableName}`]
+    );
+
+    res.json({ success: true, message: `Semua data pada modul "${module}" berhasil dihapus` });
+  } catch (err) {
+    console.error(`Truncate module ${module} error:`, err);
+    res.status(500).json({ success: false, message: 'Gagal mengosongkan data: ' + err.message });
+  }
+};

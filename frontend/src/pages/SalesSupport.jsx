@@ -58,6 +58,22 @@ const SalesSupport = () => {
   const [form, setForm] = useState(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [deleteAllConfirm, setDeleteAllConfirm] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
+
+  const handleDeleteAll = async () => {
+    setDeletingAll(true);
+    try {
+      await api.delete('/import/truncate/sales-support');
+      toast.success('Semua data Sales Support berhasil dihapus');
+      setDeleteAllConfirm(false);
+      fetchData(1);
+    } catch {
+      toast.error('Gagal menghapus semua data');
+    } finally {
+      setDeletingAll(false);
+    }
+  };
 
   const fetchData = useCallback(async (page = 1) => {
     setLoading(true);
@@ -216,6 +232,15 @@ const SalesSupport = () => {
         title="Sales Support"
         subtitle="Manajemen tiket keluhan dan dukungan pelanggan"
         icon="🎧"
+        actions={
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={() => setDeleteAllConfirm(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+          >
+            🗑️ Hapus Semua
+          </button>
+        }
       />
 
       {/* Summary badges */}
@@ -375,6 +400,25 @@ const SalesSupport = () => {
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
           <button className="btn btn-secondary" onClick={() => setDeleteConfirm(null)}>Batal</button>
           <button className="btn btn-danger" onClick={() => handleDelete(deleteConfirm.id)}>🗑️ Hapus</button>
+        </div>
+      </Modal>
+
+      {/* Delete All Confirm Modal */}
+      <Modal
+        isOpen={deleteAllConfirm}
+        onClose={() => setDeleteAllConfirm(false)}
+        title="🗑️ Konfirmasi Hapus Semua"
+        size="sm"
+      >
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>
+          Apakah Anda yakin ingin menghapus <strong>seluruh data</strong> Sales Support?
+          Tindakan ini tidak dapat dibatalkan.
+        </p>
+        <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+          <button className="btn btn-secondary" onClick={() => setDeleteAllConfirm(false)} disabled={deletingAll}>Batal</button>
+          <button className="btn btn-danger" onClick={handleDeleteAll} disabled={deletingAll} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            {deletingAll ? 'Menghapus...' : 'Ya, Hapus Semua'}
+          </button>
         </div>
       </Modal>
     </div>

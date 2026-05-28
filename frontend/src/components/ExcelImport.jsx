@@ -48,7 +48,25 @@ const ExcelImport = ({ module, onSuccess }) => {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [result, setResult] = useState(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const fileRef = useRef();
+
+  const handleDeleteAll = async () => {
+    setDeleting(true);
+    try {
+      const res = await api.delete(`/import/truncate/${module}`);
+      if (res.data.success) {
+        toast.success(`Semua data berhasil dihapus`);
+        setDeleteConfirm(false);
+        if (onSuccess) onSuccess();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Gagal menghapus semua data');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const reset = () => {
     setFile(null);
@@ -119,7 +137,7 @@ const ExcelImport = ({ module, onSuccess }) => {
   };
 
   return (
-    <>
+    <div style={{ display: 'flex', gap: '8px' }}>
       {/* Trigger button */}
       <button
         className="btn btn-secondary btn-sm"
@@ -129,6 +147,16 @@ const ExcelImport = ({ module, onSuccess }) => {
       >
         <IconUpload />
         Import Excel
+      </button>
+
+      {/* Hapus Semua button */}
+      <button
+        className="btn btn-danger btn-sm"
+        onClick={() => setDeleteConfirm(true)}
+        title="Hapus Semua Data"
+        style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+      >
+        🗑️ Hapus Semua
       </button>
 
       {/* Modal overlay */}
@@ -378,7 +406,64 @@ const ExcelImport = ({ module, onSuccess }) => {
           </div>
         </div>
       )}
-    </>
+
+      {/* Delete All Confirmation Modal */}
+      {deleteConfirm && (
+        <div
+          style={{
+            position: 'fixed', inset: 0,
+            background: 'rgba(0,0,0,0.45)',
+            backdropFilter: 'blur(3px)',
+            zIndex: 1100,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '20px',
+          }}
+          onClick={() => setDeleteConfirm(false)}
+        >
+          <div style={{
+            background: 'var(--bg-elevated)',
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '400px',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+            animation: 'fadeIn 0.2s ease-out',
+            overflow: 'hidden',
+            padding: '20px',
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '8px' }}>
+              🗑️ Konfirmasi Hapus Semua
+            </h3>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: '1.5' }}>
+              Apakah Anda yakin ingin menghapus <strong>seluruh data</strong> pada modul ini? Tindakan ini akan mengosongkan tabel dan tidak dapat dibatalkan.
+            </p>
+            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={() => setDeleteConfirm(false)}
+                disabled={deleting}
+              >
+                Batal
+              </button>
+              <button
+                className="btn btn-danger btn-sm"
+                onClick={handleDeleteAll}
+                disabled={deleting}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                {deleting ? (
+                  <>
+                    <div className="spinner" style={{ width: '12px', height: '12px', borderWidth: '1.5px' }} />
+                    Menghapus...
+                  </>
+                ) : (
+                  'Ya, Hapus Semua'
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
