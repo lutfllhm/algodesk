@@ -202,7 +202,7 @@ async function ensureTables() {
       shipping_provider_name VARCHAR(150),
       buyer_message TEXT,
       buyer_username VARCHAR(150),
-      recipient VARCHAR(150),
+      recipient VARCHAR(255),
       phone VARCHAR(100),
       zipcode VARCHAR(100),
       country VARCHAR(100),
@@ -212,7 +212,7 @@ async function ensureTables() {
       villages VARCHAR(150),
       detail_address TEXT,
       additional_address TEXT,
-      payment_method VARCHAR(100),
+      payment_method VARCHAR(255),
       weight_kg DECIMAL(10,2),
       product_category VARCHAR(150),
       package_id VARCHAR(150),
@@ -266,6 +266,15 @@ async function ensureTables() {
 
   // Ensure zipcode column can support up to 100 characters in existing setups
   await tryQuery(`ALTER TABLE cod_gagal_tiktok MODIFY COLUMN zipcode VARCHAR(100)`);
+  // Ensure recipient and payment_method columns can support up to 255 characters in existing setups
+  await tryQuery(`ALTER TABLE cod_gagal_tiktok MODIFY COLUMN recipient VARCHAR(255)`);
+  await tryQuery(`ALTER TABLE cod_gagal_tiktok MODIFY COLUMN payment_method VARCHAR(255)`);
+
+  // Ensure nama_penerima and metode_pembayaran can support up to 255 characters in Shopee/TikTok mami setups
+  await tryQuery(`ALTER TABLE cod_gagal_shopee_algoo MODIFY COLUMN nama_penerima VARCHAR(255)`);
+  await tryQuery(`ALTER TABLE cod_gagal_shopee_mami_kasir MODIFY COLUMN nama_penerima VARCHAR(255)`);
+  await tryQuery(`ALTER TABLE cod_gagal_shopee_mami_kasir MODIFY COLUMN metode_pembayaran VARCHAR(255)`);
+  await tryQuery(`ALTER TABLE cod_gagal_tiktok_mami_kasir MODIFY COLUMN nama_penerima VARCHAR(255)`);
 
   // COD Gagal Shopee Algoo
   await tryQuery(`
@@ -310,7 +319,7 @@ async function ensureTables() {
       catatan_dari_pembeli TEXT,
       catatan TEXT,
       username_pembeli VARCHAR(150),
-      nama_penerima VARCHAR(150),
+      nama_penerima VARCHAR(255),
       no_telepon VARCHAR(50),
       alamat_pengiriman TEXT,
       kota_kabupaten VARCHAR(150),
@@ -369,7 +378,7 @@ async function ensureTables() {
       catatan_dari_pembeli TEXT,
       catatan TEXT,
       username_pembeli VARCHAR(150),
-      nama_penerima VARCHAR(150),
+      nama_penerima VARCHAR(255),
       no_telepon VARCHAR(50),
       alamat_pengiriman TEXT,
       kota_kabupaten VARCHAR(150),
@@ -377,7 +386,7 @@ async function ensureTables() {
       waktu_pesanan_selesai DATETIME,
       waktu_pesanan_dibuat DATETIME,
       waktu_pembayaran_dilakukan DATETIME,
-      metode_pembayaran VARCHAR(100),
+      metode_pembayaran VARCHAR(255),
       status_klaim VARCHAR(100),
       tanggal_klaim_diajukan DATE,
       tanggal_klaim_disetujui DATE,
@@ -434,7 +443,7 @@ async function ensureTables() {
       catatan_dari_pembeli TEXT,
       catatan TEXT,
       username_pembeli VARCHAR(150),
-      nama_penerima VARCHAR(150),
+      nama_penerima VARCHAR(255),
       no_telepon VARCHAR(50),
       alamat_pengiriman TEXT,
       kota_kabupaten VARCHAR(150),
