@@ -11,6 +11,46 @@ const norm = (str) =>
     .replace(/\s+/g, '_')
     .replace(/[^a-z0-9_]/g, '');
 
+// ─── Helper: parse clean decimal ─────────────────────────────────────────────
+const parseCleanDecimal = (val) => {
+  if (val === undefined || val === null || val === '') return null;
+  if (typeof val === 'number') return val;
+  
+  let s = String(val).trim();
+  s = s.replace(/^[Rr][Pp]\.?\s*/g, '').replace(/\s*$/g, '');
+  s = s.replace(/\s+/g, '');
+  
+  const hasComma = s.includes(',');
+  const hasDot = s.includes('.');
+  
+  if (hasComma && hasDot) {
+    if (s.indexOf('.') < s.indexOf(',')) {
+      s = s.replace(/\./g, '').replace(/,/g, '.');
+    } else {
+      s = s.replace(/,/g, '');
+    }
+  } else if (hasComma) {
+    const parts = s.split(',');
+    if (parts.length > 2) {
+      s = parts.join('');
+    } else if (parts[1].length === 3) {
+      s = s.replace(/,/g, '');
+    } else {
+      s = parts[0] + '.' + parts[1];
+    }
+  } else if (hasDot) {
+    const parts = s.split('.');
+    if (parts.length > 2) {
+      s = parts.join('');
+    } else if (parts[1].length === 3) {
+      s = s.replace(/\./g, '');
+    }
+  }
+  
+  const num = parseFloat(s);
+  return isNaN(num) ? null : num;
+};
+
 // ─── Helper: parse date value from Excel ─────────────────────────────────────
 const MONTH_MAP = {
   jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
@@ -317,7 +357,7 @@ const MODULE_CONFIGS = {
       detail_address:                   pick(row, 'detail_address', 'detail address'),
       additional_address:               pick(row, 'additional_address', 'additional address information'),
       payment_method:                   pick(row, 'payment_method', 'payment method'),
-      weight_kg:                        pick(row, 'weight_kg', 'weightkg', 'weight(kg)') || null,
+      weight_kg:                        parseCleanDecimal(pick(row, 'weight_kg', 'weightkg', 'weight(kg)')),
       product_category:                 pick(row, 'product_category', 'product category'),
       package_id:                       pick(row, 'package_id', 'package id'),
       purchase_channel:                 pick(row, 'purchase_channel', 'purchase channel'),
@@ -327,22 +367,22 @@ const MODULE_CONFIGS = {
       tokopedia_invoice_number:         pick(row, 'tokopedia_invoice_number', 'tokopedia invoice number'),
       // Kolom tambahan dari Excel
       sku_quantity_of_return:           parseInt(pick(row, 'sku_quantity_of_return', 'sku quantity of return')) || null,
-      sku_unit_original_price:          pick(row, 'sku_unit_original_price', 'sku unit original price') || null,
-      sku_subtotal_before_discount:     pick(row, 'sku_subtotal_before_discount', 'sku subtotal before discount') || null,
-      sku_platform_discount:            pick(row, 'sku_platform_discount', 'sku platform discount') || null,
-      sku_seller_discount:              pick(row, 'sku_seller_discount', 'sku seller discount') || null,
-      sku_subtotal_after_discount:      pick(row, 'sku_subtotal_after_discount', 'sku subtotal after discount') || null,
-      shipping_fee_after_discount:      pick(row, 'shipping_fee_after_discount', 'shipping fee after discount') || null,
-      original_shipping_fee:            pick(row, 'original_shipping_fee', 'original shipping fee') || null,
-      shipping_fee_seller_discount:     pick(row, 'shipping_fee_seller_discount', 'shipping fee seller discount') || null,
-      shipping_fee_platform_discount:   pick(row, 'shipping_fee_platform_discount', 'shipping fee platform discount') || null,
-      payment_platform_discount:        pick(row, 'payment_platform_discount', 'payment platform discount') || null,
-      buyer_service_fee:                pick(row, 'buyer_service_fee', 'buyer service fee') || null,
-      handling_fee:                     pick(row, 'handling_fee', 'handling fee') || null,
-      shipping_insurance:               pick(row, 'shipping_insurance', 'shipping insurance') || null,
-      item_insurance:                   pick(row, 'item_insurance', 'item insurance') || null,
-      order_amount:                     pick(row, 'order_amount', 'order amount') || null,
-      order_refund_amount:              pick(row, 'order_refund_amount', 'order refund amount') || null,
+      sku_unit_original_price:          parseCleanDecimal(pick(row, 'sku_unit_original_price', 'sku unit original price')),
+      sku_subtotal_before_discount:     parseCleanDecimal(pick(row, 'sku_subtotal_before_discount', 'sku subtotal before discount')),
+      sku_platform_discount:            parseCleanDecimal(pick(row, 'sku_platform_discount', 'sku platform discount')),
+      sku_seller_discount:              parseCleanDecimal(pick(row, 'sku_seller_discount', 'sku seller discount')),
+      sku_subtotal_after_discount:      parseCleanDecimal(pick(row, 'sku_subtotal_after_discount', 'sku subtotal after discount')),
+      shipping_fee_after_discount:      parseCleanDecimal(pick(row, 'shipping_fee_after_discount', 'shipping fee after discount')),
+      original_shipping_fee:            parseCleanDecimal(pick(row, 'original_shipping_fee', 'original shipping fee')),
+      shipping_fee_seller_discount:     parseCleanDecimal(pick(row, 'shipping_fee_seller_discount', 'shipping fee seller discount')),
+      shipping_fee_platform_discount:   parseCleanDecimal(pick(row, 'shipping_fee_platform_discount', 'shipping fee platform discount')),
+      payment_platform_discount:        parseCleanDecimal(pick(row, 'payment_platform_discount', 'payment platform discount')),
+      buyer_service_fee:                parseCleanDecimal(pick(row, 'buyer_service_fee', 'buyer service fee')),
+      handling_fee:                     parseCleanDecimal(pick(row, 'handling_fee', 'handling fee')),
+      shipping_insurance:               parseCleanDecimal(pick(row, 'shipping_insurance', 'shipping insurance')),
+      item_insurance:                   parseCleanDecimal(pick(row, 'item_insurance', 'item insurance')),
+      order_amount:                     parseCleanDecimal(pick(row, 'order_amount', 'order amount')),
+      order_refund_amount:              parseCleanDecimal(pick(row, 'order_refund_amount', 'order refund amount')),
       created_time:                     pick(row, 'created_time', 'created time') || null,
       paid_time:                        pick(row, 'paid_time', 'paid time') || null,
       rts_time:                         pick(row, 'rts_time', 'rts time') || null,
@@ -373,30 +413,30 @@ const MODULE_CONFIGS = {
       nomor_referensi_sku:                 pick(row, 'nomor_referensi_sku', 'nomor referensi sku'),
       serial_number:                       pick(row, 'serial_number', 'serial number'),
       nama_variasi:                        pick(row, 'nama_variasi', 'nama variasi'),
-      harga_awal:                          pick(row, 'harga_awal', 'harga awal') || null,
-      harga_setelah_diskon:                pick(row, 'harga_setelah_diskon', 'harga setelah diskon') || null,
+      harga_awal:                          parseCleanDecimal(pick(row, 'harga_awal', 'harga awal')),
+      harga_setelah_diskon:                parseCleanDecimal(pick(row, 'harga_setelah_diskon', 'harga setelah diskon')),
       jumlah:                              parseInt(pick(row, 'jumlah')) || null,
       returned_quantity:                   parseInt(pick(row, 'returned_quantity', 'returned quantity')) || null,
-      total_harga_produk:                  pick(row, 'total_harga_produk', 'total harga produk') || null,
-      total_diskon:                        pick(row, 'total_diskon', 'total diskon') || null,
-      diskon_dari_penjual:                 pick(row, 'diskon_dari_penjual', 'diskon dari penjual') || null,
-      diskon_dari_shopee:                  pick(row, 'diskon_dari_shopee', 'diskon dari shopee') || null,
+      total_harga_produk:                  parseCleanDecimal(pick(row, 'total_harga_produk', 'total harga produk')),
+      total_diskon:                        parseCleanDecimal(pick(row, 'total_diskon', 'total diskon')),
+      diskon_dari_penjual:                 parseCleanDecimal(pick(row, 'diskon_dari_penjual', 'diskon dari penjual')),
+      diskon_dari_shopee:                  parseCleanDecimal(pick(row, 'diskon_dari_shopee', 'diskon dari shopee')),
       berat_produk:                        pick(row, 'berat_produk', 'berat produk'),
       jumlah_produk_di_pesan:              parseInt(pick(row, 'jumlah_produk_di_pesan', 'jumlah produk di pesan')) || null,
       total_berat:                         pick(row, 'total_berat', 'total berat'),
-      voucher_ditanggung_penjual:          pick(row, 'voucher_ditanggung_penjual', 'voucher ditanggung penjual') || null,
-      cashback_koin:                       pick(row, 'cashback_koin', 'cashback koin') || null,
+      voucher_ditanggung_penjual:          parseCleanDecimal(pick(row, 'voucher_ditanggung_penjual', 'voucher ditanggung penjual')),
+      cashback_koin:                       parseCleanDecimal(pick(row, 'cashback_koin', 'cashback koin')),
       voucher_ditanggung_shopee:           pick(row, 'voucher_ditanggung_shopee', 'voucher ditanggung shopee'),
-      paket_diskon:                        pick(row, 'paket_diskon', 'paket diskon') || null,
-      paket_diskon_dari_shopee:            pick(row, 'paket_diskon_dari_shopee', 'paket diskon diskon dari shopee') || null,
-      paket_diskon_dari_penjual:           pick(row, 'paket_diskon_dari_penjual', 'paket diskon diskon dari penjual') || null,
-      potongan_koin_shopee:                pick(row, 'potongan_koin_shopee', 'potongan koin shopee') || null,
-      diskon_kartu_kredit:                 pick(row, 'diskon_kartu_kredit', 'diskon kartu kredit') || null,
-      ongkir_dibayar_pembeli:              pick(row, 'ongkir_dibayar_pembeli', 'ongkos kirim dibayar oleh pembeli') || null,
-      estimasi_potongan_biaya_pengiriman:  pick(row, 'estimasi_potongan_biaya_pengiriman', 'estimasi potongan biaya pengiriman') || null,
-      ongkir_pengembalian_barang:          pick(row, 'ongkir_pengembalian_barang', 'ongkos kirim pengembalian barang') || null,
-      total_pembayaran:                    pick(row, 'total_pembayaran', 'total pembayaran') || null,
-      perkiraan_ongkir:                    pick(row, 'perkiraan_ongkir', 'perkiraan ongkos kirim') || null,
+      paket_diskon:                        parseCleanDecimal(pick(row, 'paket_diskon', 'paket diskon')),
+      paket_diskon_dari_shopee:            parseCleanDecimal(pick(row, 'paket_diskon_dari_shopee', 'paket diskon diskon dari shopee')),
+      paket_diskon_dari_penjual:           parseCleanDecimal(pick(row, 'paket_diskon_dari_penjual', 'paket diskon diskon dari penjual')),
+      potongan_koin_shopee:                parseCleanDecimal(pick(row, 'potongan_koin_shopee', 'potongan koin shopee')),
+      diskon_kartu_kredit:                 parseCleanDecimal(pick(row, 'diskon_kartu_kredit', 'diskon kartu kredit')),
+      ongkir_dibayar_pembeli:              parseCleanDecimal(pick(row, 'ongkir_dibayar_pembeli', 'ongkos kirim dibayar oleh pembeli')),
+      estimasi_potongan_biaya_pengiriman:  parseCleanDecimal(pick(row, 'estimasi_potongan_biaya_pengiriman', 'estimasi potongan biaya pengiriman')),
+      ongkir_pengembalian_barang:          parseCleanDecimal(pick(row, 'ongkir_pengembalian_barang', 'ongkos kirim pengembalian barang')),
+      total_pembayaran:                    parseCleanDecimal(pick(row, 'total_pembayaran', 'total pembayaran')),
+      perkiraan_ongkir:                    parseCleanDecimal(pick(row, 'perkiraan_ongkir', 'perkiraan ongkos kirim')),
       catatan_dari_pembeli:                pick(row, 'catatan_dari_pembeli', 'catatan dari pembeli'),
       catatan:                             pick(row, 'catatan'),
       username_pembeli:                    pick(row, 'username_pembeli', 'username pembeli'),
@@ -428,30 +468,30 @@ const MODULE_CONFIGS = {
       nama_produk:                         pick(row, 'nama_produk', 'nama produk'),
       nomor_referensi_sku:                 pick(row, 'nomor_referensi_sku', 'nomor referensi sku'),
       nama_variasi:                        pick(row, 'nama_variasi', 'nama variasi'),
-      harga_awal:                          pick(row, 'harga_awal', 'harga awal') || null,
-      harga_setelah_diskon:                pick(row, 'harga_setelah_diskon', 'harga setelah diskon') || null,
+      harga_awal:                          parseCleanDecimal(pick(row, 'harga_awal', 'harga awal')),
+      harga_setelah_diskon:                parseCleanDecimal(pick(row, 'harga_setelah_diskon', 'harga setelah diskon')),
       jumlah:                              parseInt(pick(row, 'jumlah')) || null,
       returned_quantity:                   parseInt(pick(row, 'returned_quantity', 'returned quantity')) || null,
-      total_harga_produk:                  pick(row, 'total_harga_produk', 'total harga produk') || null,
-      total_diskon:                        pick(row, 'total_diskon', 'total diskon') || null,
-      diskon_dari_penjual:                 pick(row, 'diskon_dari_penjual', 'diskon dari penjual') || null,
-      diskon_dari_shopee:                  pick(row, 'diskon_dari_shopee', 'diskon dari shopee') || null,
+      total_harga_produk:                  parseCleanDecimal(pick(row, 'total_harga_produk', 'total harga produk')),
+      total_diskon:                        parseCleanDecimal(pick(row, 'total_diskon', 'total diskon')),
+      diskon_dari_penjual:                 parseCleanDecimal(pick(row, 'diskon_dari_penjual', 'diskon dari penjual')),
+      diskon_dari_shopee:                  parseCleanDecimal(pick(row, 'diskon_dari_shopee', 'diskon dari shopee')),
       berat_produk:                        pick(row, 'berat_produk', 'berat produk'),
       jumlah_produk_di_pesan:              parseInt(pick(row, 'jumlah_produk_di_pesan', 'jumlah produk di pesan')) || null,
       total_berat:                         pick(row, 'total_berat', 'total berat'),
-      voucher_ditanggung_penjual:          pick(row, 'voucher_ditanggung_penjual', 'voucher ditanggung penjual') || null,
-      cashback_koin:                       pick(row, 'cashback_koin', 'cashback koin') || null,
+      voucher_ditanggung_penjual:          parseCleanDecimal(pick(row, 'voucher_ditanggung_penjual', 'voucher ditanggung penjual')),
+      cashback_koin:                       parseCleanDecimal(pick(row, 'cashback_koin', 'cashback koin')),
       voucher_ditanggung_shopee:           pick(row, 'voucher_ditanggung_shopee', 'voucher ditanggung shopee'),
-      paket_diskon:                        pick(row, 'paket_diskon', 'paket diskon') || null,
-      paket_diskon_dari_shopee:            pick(row, 'paket_diskon_dari_shopee') || null,
-      paket_diskon_dari_penjual:           pick(row, 'paket_diskon_dari_penjual') || null,
-      potongan_koin_shopee:                pick(row, 'potongan_koin_shopee', 'potongan koin shopee') || null,
-      diskon_kartu_kredit:                 pick(row, 'diskon_kartu_kredit', 'diskon kartu kredit') || null,
-      ongkir_dibayar_pembeli:              pick(row, 'ongkir_dibayar_pembeli', 'ongkos kirim dibayar oleh pembeli') || null,
-      estimasi_potongan_biaya_pengiriman:  pick(row, 'estimasi_potongan_biaya_pengiriman', 'estimasi potongan biaya pengiriman') || null,
-      ongkir_pengembalian_barang:          pick(row, 'ongkir_pengembalian_barang', 'ongkos kirim pengembalian barang') || null,
-      total_pembayaran:                    pick(row, 'total_pembayaran', 'total pembayaran') || null,
-      perkiraan_ongkir:                    pick(row, 'perkiraan_ongkir', 'perkiraan ongkos kirim') || null,
+      paket_diskon:                        parseCleanDecimal(pick(row, 'paket_diskon', 'paket diskon')),
+      paket_diskon_dari_shopee:            parseCleanDecimal(pick(row, 'paket_diskon_dari_shopee')),
+      paket_diskon_dari_penjual:           parseCleanDecimal(pick(row, 'paket_diskon_dari_penjual')),
+      potongan_koin_shopee:                parseCleanDecimal(pick(row, 'potongan_koin_shopee', 'potongan koin shopee')),
+      diskon_kartu_kredit:                 parseCleanDecimal(pick(row, 'diskon_kartu_kredit', 'diskon kartu kredit')),
+      ongkir_dibayar_pembeli:              parseCleanDecimal(pick(row, 'ongkir_dibayar_pembeli', 'ongkos kirim dibayar oleh pembeli')),
+      estimasi_potongan_biaya_pengiriman:  parseCleanDecimal(pick(row, 'estimasi_potongan_biaya_pengiriman', 'estimasi potongan biaya pengiriman')),
+      ongkir_pengembalian_barang:          parseCleanDecimal(pick(row, 'ongkir_pengembalian_barang', 'ongkos kirim pengembalian barang')),
+      total_pembayaran:                    parseCleanDecimal(pick(row, 'total_pembayaran', 'total pembayaran')),
+      perkiraan_ongkir:                    parseCleanDecimal(pick(row, 'perkiraan_ongkir', 'perkiraan ongkos kirim')),
       catatan_dari_pembeli:                pick(row, 'catatan_dari_pembeli', 'catatan dari pembeli'),
       catatan:                             pick(row, 'catatan'),
       username_pembeli:                    pick(row, 'username_pembeli', 'username pembeli'),
@@ -469,7 +509,8 @@ const MODULE_CONFIGS = {
       tanggal_klaim_disetujui:             parseDate(pick(row, 'tanggal_klaim_disetujui', 'tanggal klaim disetujui')),
       tanggal_klaim_dicairkan:             parseDate(pick(row, 'tanggal_klaim_dicairkan', 'tanggal klaim dicairkan')),
       tanggal_klaim_ditolak:               parseDate(pick(row, 'tanggal_klaim_ditolak', 'tanggal klaim ditolak')),
-      jumlah_kompensasi:                   pick(row, 'jumlah_kompensasi', 'jumlah kompensasi') || null,
+      summary:                             null, // wait, keep it same
+      jumlah_kompensasi:                   parseCleanDecimal(pick(row, 'jumlah_kompensasi', 'jumlah kompensasi')),
     }),
   },
 
@@ -489,30 +530,30 @@ const MODULE_CONFIGS = {
       nomor_referensi_sku:                 pick(row, 'nomor_referensi_sku', 'nomor referensi sku'),
       serial_number:                       pick(row, 'serial_number', 'serial number'),
       nama_variasi:                        pick(row, 'nama_variasi', 'nama variasi', 'variation'),
-      harga_awal:                          pick(row, 'harga_awal', 'harga awal') || null,
-      harga_setelah_diskon:                pick(row, 'harga_setelah_diskon', 'harga setelah diskon') || null,
+      harga_awal:                          parseCleanDecimal(pick(row, 'harga_awal', 'harga awal')),
+      harga_setelah_diskon:                parseCleanDecimal(pick(row, 'harga_setelah_diskon', 'harga setelah diskon')),
       jumlah:                              parseInt(pick(row, 'jumlah')) || null,
       returned_quantity:                   parseInt(pick(row, 'returned_quantity', 'returned quantity')) || null,
-      total_harga_produk:                  pick(row, 'total_harga_produk', 'total harga produk') || null,
-      total_diskon:                        pick(row, 'total_diskon', 'total diskon') || null,
-      diskon_dari_penjual:                 pick(row, 'diskon_dari_penjual', 'diskon dari penjual') || null,
-      diskon_dari_shopee:                  pick(row, 'diskon_dari_shopee', 'diskon dari shopee') || null,
+      total_harga_produk:                  parseCleanDecimal(pick(row, 'total_harga_produk', 'total harga produk')),
+      total_diskon:                        parseCleanDecimal(pick(row, 'total_diskon', 'total diskon')),
+      diskon_dari_penjual:                 parseCleanDecimal(pick(row, 'diskon_dari_penjual', 'diskon dari penjual')),
+      diskon_dari_shopee:                  parseCleanDecimal(pick(row, 'diskon_dari_shopee', 'diskon dari shopee')),
       berat_produk:                        pick(row, 'berat_produk', 'berat produk', 'weight_kg', 'weightkg', 'weight(kg)'),
       jumlah_produk_di_pesan:              parseInt(pick(row, 'jumlah_produk_di_pesan', 'jumlah produk di pesan')) || null,
       total_berat:                         pick(row, 'total_berat', 'total berat'),
-      voucher_ditanggung_penjual:          pick(row, 'voucher_ditanggung_penjual', 'voucher ditanggung penjual') || null,
-      cashback_koin:                       pick(row, 'cashback_koin', 'cashback koin') || null,
+      voucher_ditanggung_penjual:          parseCleanDecimal(pick(row, 'voucher_ditanggung_penjual', 'voucher ditanggung penjual')),
+      cashback_koin:                       parseCleanDecimal(pick(row, 'cashback_koin', 'cashback koin')),
       voucher_ditanggung_shopee:           pick(row, 'voucher_ditanggung_shopee', 'voucher ditanggung shopee'),
-      paket_diskon:                        pick(row, 'paket_diskon', 'paket diskon') || null,
-      paket_diskon_dari_shopee:            pick(row, 'paket_diskon_dari_shopee') || null,
-      paket_diskon_dari_penjual:           pick(row, 'paket_diskon_dari_penjual') || null,
-      potongan_koin_shopee:                pick(row, 'potongan_koin_shopee', 'potongan koin shopee') || null,
-      diskon_kartu_kredit:                 pick(row, 'diskon_kartu_kredit', 'diskon kartu kredit') || null,
-      ongkir_dibayar_pembeli:              pick(row, 'ongkir_dibayar_pembeli', 'ongkos kirim dibayar oleh pembeli') || null,
-      estimasi_potongan_biaya_pengiriman:  pick(row, 'estimasi_potongan_biaya_pengiriman', 'estimasi potongan biaya pengiriman') || null,
-      ongkir_pengembalian_barang:          pick(row, 'ongkir_pengembalian_barang', 'ongkos kirim pengembalian barang') || null,
-      total_pembayaran:                    pick(row, 'total_pembayaran', 'total pembayaran') || null,
-      perkiraan_ongkir:                    pick(row, 'perkiraan_ongkir', 'perkiraan ongkos kirim') || null,
+      paket_diskon:                        parseCleanDecimal(pick(row, 'paket_diskon', 'paket diskon')),
+      paket_diskon_dari_shopee:            parseCleanDecimal(pick(row, 'paket_diskon_dari_shopee')),
+      paket_diskon_dari_penjual:           parseCleanDecimal(pick(row, 'paket_diskon_dari_penjual')),
+      potongan_koin_shopee:                parseCleanDecimal(pick(row, 'potongan_koin_shopee', 'potongan koin shopee')),
+      diskon_kartu_kredit:                 parseCleanDecimal(pick(row, 'diskon_kartu_kredit', 'diskon kartu kredit')),
+      ongkir_dibayar_pembeli:              parseCleanDecimal(pick(row, 'ongkir_dibayar_pembeli', 'ongkos kirim dibayar oleh pembeli')),
+      estimasi_potongan_biaya_pengiriman:  parseCleanDecimal(pick(row, 'estimasi_potongan_biaya_pengiriman', 'estimasi potongan biaya pengiriman')),
+      ongkir_pengembalian_barang:          parseCleanDecimal(pick(row, 'ongkir_pengembalian_barang', 'ongkos kirim pengembalian barang')),
+      total_pembayaran:                    parseCleanDecimal(pick(row, 'total_pembayaran', 'total pembayaran')),
+      perkiraan_ongkir:                    parseCleanDecimal(pick(row, 'perkiraan_ongkir', 'perkiraan ongkos kirim')),
       catatan_dari_pembeli:                pick(row, 'catatan_dari_pembeli', 'catatan dari pembeli', 'buyer_message', 'buyer message'),
       catatan:                             pick(row, 'catatan', 'seller_note', 'seller note'),
       username_pembeli:                    pick(row, 'username_pembeli', 'username pembeli', 'buyer_username', 'buyer username'),
@@ -525,7 +566,6 @@ const MODULE_CONFIGS = {
     }),
   },
 };
-
 // ─── IMPORT HANDLER ───────────────────────────────────────────────────────────
 exports.importExcel = async (req, res) => {
   const { module } = req.params;
@@ -674,7 +714,7 @@ const TEMPLATES = {
   'cod-gagal-tiktok-mami': {
     name: 'Template_COD_Gagal_TikTok_Mami_Kasir.xlsx',
     headers: ['status_brg', 'dibukukan_accurate', 'no_pesanan', 'status_pesanan', 'status_pembatalan_pengembalian', 'status_pengiriman_gagal', 'no_resi', 'sku_induk', 'nama_produk', 'nomor_referensi_sku', 'serial_number', 'nama_variasi', 'harga_awal', 'harga_setelah_diskon', 'jumlah', 'returned_quantity', 'total_harga_produk', 'total_diskon', 'diskon_dari_penjual', 'diskon_dari_shopee', 'berat_produk', 'jumlah_produk_di_pesan', 'total_berat', 'voucher_ditanggung_penjual', 'cashback_koin', 'voucher_ditanggung_shopee', 'paket_diskon', 'paket_diskon_dari_shopee', 'paket_diskon_dari_penjual', 'potongan_koin_shopee', 'diskon_kartu_kredit', 'ongkir_dibayar_pembeli', 'estimasi_potongan_biaya_pengiriman', 'ongkir_pengembalian_barang', 'total_pembayaran', 'perkiraan_ongkir', 'catatan_dari_pembeli', 'catatan', 'username_pembeli', 'nama_penerima', 'no_telepon', 'alamat_pengiriman', 'kota_kabupaten', 'provinsi', 'waktu_pesanan_selesai'],
-    example: ['Diterima', '28-Apr', '260427VT61WAVB', 'Batal', '', 'Selesai Dikirim ke Penjual', 'SPXID060474312994', 'AL-100BLP-BLACK', 'AL-100BLP-BLACK-100x100-@1Roll', 'BLP-BLACK.100x100@500 1Roll', '1740999', 'WHITE', '720000', '0', '1', '0', '720000', '0', '3500 gr', '0', '1', '3500 gr', '0', '0', 'N', '0', '0', '0', '0', '0', '0', '0', '0', '98400', '', '', '', 'andririchs', 'A***i', 'Ja*****', 'KAB. SERDANG BEDAGAI', 'KAB. SERDANG BEDAGAI', 'SUMATERA UTARA', ''],
+    example: ['Diterima', '28-Apr', '260427VT61WAVB', 'Batal', '', 'Selesai Dikirim ke Penjual', 'SPXID060474312994', 'AL-100BLP-BLACK', 'AL-100BLP-BLACK-100x100-@1Roll', 'BLP-BLACK.100x100@500 1Roll', '1740999', 'WHITE', '720000', '0', '1', '0', '720000', '0', '3500 gr', '0', '1', '3500 gr', '0', '0', '0', 'N', '0', '0', '0', '0', '0', '0', '0', '0', '98400', '', '', '', 'andririchs', 'A***i', 'Ja*****', 'KAB. SERDANG BEDAGAI', 'KAB. SERDANG BEDAGAI', 'SUMATERA UTARA', ''],
   },
 };
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { getRecordId } from '../utils/recordId';
@@ -24,6 +24,24 @@ const EMPTY_FORM = {
   created_time: '', paid_time: '', rts_time: '', shipped_time: '', delivered_time: '',
   cancelled_time: '', cancel_by: '', cancel_reason: '', fulfillment_type: '',
   warehouse_name: '', tracking_id: ''
+};
+
+const FormContext = createContext(null);
+
+const Field = ({ label, fieldKey, type = 'text', span = false }) => {
+  const { form, setForm } = useContext(FormContext);
+  const value = form[fieldKey] || '';
+  const onChange = e => setForm(prev => ({ ...prev, [fieldKey]: e.target.value }));
+  return (
+    <div className="form-group" style={span ? { gridColumn: '1 / -1' } : {}}>
+      <label className="form-label">{label}</label>
+      {type === 'textarea' ? (
+        <textarea className="form-control" rows={2} value={value} onChange={onChange} />
+      ) : (
+        <input type={type} className="form-control" value={value} onChange={onChange} />
+      )}
+    </div>
+  );
 };
 
 const CodGagalTiktok = () => {
@@ -136,15 +154,6 @@ const CodGagalTiktok = () => {
     }
   ];
 
-  const Field = ({ label, fieldKey, type = 'text', span = false }) => (
-    <div className="form-group" style={span ? { gridColumn: '1 / -1' } : {}}>
-      <label className="form-label">{label}</label>
-      {type === 'textarea'
-        ? <textarea className="form-control" rows={2} {...f(fieldKey)} />
-        : <input type={type} className="form-control" {...f(fieldKey)} />}
-    </div>
-  );
-
   return (
     <div className="fade-in">
       <PageHeader
@@ -167,74 +176,76 @@ const CodGagalTiktok = () => {
 
       <Modal isOpen={modal.open} onClose={() => setModal({ open: false, mode: 'add', data: null })}
         title={modal.mode === 'add' ? 'Tambah COD Gagal TikTok' : 'Edit COD Gagal TikTok'} size="lg">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', maxHeight: '65vh', overflowY: 'auto', padding: '4px' }}>
-          <Field label="Status Brg" fieldKey="status_brg" />
-          <Field label="Dibukukan Accurate" fieldKey="dibukukan_accurate" />
-          <Field label="Order ID *" fieldKey="order_id" />
-          <Field label="Order Status" fieldKey="order_status" />
-          <Field label="Order Substatus" fieldKey="order_substatus" />
-          <Field label="Cancelation/Return Type" fieldKey="cancelation_return_type" />
-          <Field label="Normal or Pre-order" fieldKey="normal_or_preorder" />
-          <Field label="SKU ID" fieldKey="sku_id" />
-          <Field label="Seller SKU" fieldKey="seller_sku" />
-          <Field label="Variation" fieldKey="variation" />
-          <Field label="Delivery Option" fieldKey="delivery_option" />
-          <Field label="Shipping Provider Name" fieldKey="shipping_provider_name" />
-          <Field label="Buyer Message" fieldKey="buyer_message" type="textarea" span />
-          <Field label="Buyer Username" fieldKey="buyer_username" />
-          <Field label="Recipient" fieldKey="recipient" />
-          <Field label="Phone #" fieldKey="phone" />
-          <Field label="Zipcode" fieldKey="zipcode" />
-          <Field label="Country" fieldKey="country" />
-          <Field label="Province" fieldKey="province" />
-          <Field label="Regency and City" fieldKey="regency_and_city" />
-          <Field label="Districts" fieldKey="districts" />
-          <Field label="Villages" fieldKey="villages" />
-          <Field label="Detail Address" fieldKey="detail_address" type="textarea" span />
-          <Field label="Additional Address" fieldKey="additional_address" type="textarea" span />
-          <Field label="Payment Method" fieldKey="payment_method" />
-          <Field label="Weight (kg)" fieldKey="weight_kg" type="number" />
-          <Field label="Product Category" fieldKey="product_category" />
-          <Field label="Package ID" fieldKey="package_id" />
-          <Field label="Purchase Channel" fieldKey="purchase_channel" />
-          <Field label="Seller Note" fieldKey="seller_note" type="textarea" span />
-          <Field label="Checked Status" fieldKey="checked_status" />
-          <Field label="Checked Marked by" fieldKey="checked_marked_by" />
-          <Field label="Tokopedia Invoice Number" fieldKey="tokopedia_invoice_number" />
-          {/* Kolom tambahan */}
-          <Field label="SKU Qty of Return" fieldKey="sku_quantity_of_return" type="number" />
-          <Field label="SKU Unit Original Price" fieldKey="sku_unit_original_price" type="number" />
-          <Field label="SKU Subtotal Before Discount" fieldKey="sku_subtotal_before_discount" type="number" />
-          <Field label="SKU Platform Discount" fieldKey="sku_platform_discount" type="number" />
-          <Field label="SKU Seller Discount" fieldKey="sku_seller_discount" type="number" />
-          <Field label="SKU Subtotal After Discount" fieldKey="sku_subtotal_after_discount" type="number" />
-          <Field label="Shipping Fee After Discount" fieldKey="shipping_fee_after_discount" type="number" />
-          <Field label="Original Shipping Fee" fieldKey="original_shipping_fee" type="number" />
-          <Field label="Shipping Fee Seller Discount" fieldKey="shipping_fee_seller_discount" type="number" />
-          <Field label="Shipping Fee Platform Discount" fieldKey="shipping_fee_platform_discount" type="number" />
-          <Field label="Payment Platform Discount" fieldKey="payment_platform_discount" type="number" />
-          <Field label="Buyer Service Fee" fieldKey="buyer_service_fee" type="number" />
-          <Field label="Handling Fee" fieldKey="handling_fee" type="number" />
-          <Field label="Shipping Insurance" fieldKey="shipping_insurance" type="number" />
-          <Field label="Item Insurance" fieldKey="item_insurance" type="number" />
-          <Field label="Order Amount" fieldKey="order_amount" type="number" />
-          <Field label="Order Refund Amount" fieldKey="order_refund_amount" type="number" />
-          <Field label="Created Time" fieldKey="created_time" type="datetime-local" />
-          <Field label="Paid Time" fieldKey="paid_time" type="datetime-local" />
-          <Field label="RTS Time" fieldKey="rts_time" type="datetime-local" />
-          <Field label="Shipped Time" fieldKey="shipped_time" type="datetime-local" />
-          <Field label="Delivered Time" fieldKey="delivered_time" type="datetime-local" />
-          <Field label="Cancelled Time" fieldKey="cancelled_time" type="datetime-local" />
-          <Field label="Cancel By" fieldKey="cancel_by" />
-          <Field label="Cancel Reason" fieldKey="cancel_reason" />
-          <Field label="Fulfillment Type" fieldKey="fulfillment_type" />
-          <Field label="Warehouse Name" fieldKey="warehouse_name" />
-          <Field label="Tracking ID" fieldKey="tracking_id" />
-        </div>
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px' }}>
-          <button className="btn btn-secondary" onClick={() => setModal({ open: false, mode: 'add', data: null })}>Batal</button>
-          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Menyimpan...' : 'Simpan'}</button>
-        </div>
+        <FormContext.Provider value={{ form, setForm }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', maxHeight: '65vh', overflowY: 'auto', padding: '4px' }}>
+            <Field label="Status Brg" fieldKey="status_brg" />
+            <Field label="Dibukukan Accurate" fieldKey="dibukukan_accurate" />
+            <Field label="Order ID *" fieldKey="order_id" />
+            <Field label="Order Status" fieldKey="order_status" />
+            <Field label="Order Substatus" fieldKey="order_substatus" />
+            <Field label="Cancelation/Return Type" fieldKey="cancelation_return_type" />
+            <Field label="Normal or Pre-order" fieldKey="normal_or_preorder" />
+            <Field label="SKU ID" fieldKey="sku_id" />
+            <Field label="Seller SKU" fieldKey="seller_sku" />
+            <Field label="Variation" fieldKey="variation" />
+            <Field label="Delivery Option" fieldKey="delivery_option" />
+            <Field label="Shipping Provider Name" fieldKey="shipping_provider_name" />
+            <Field label="Buyer Message" fieldKey="buyer_message" type="textarea" span />
+            <Field label="Buyer Username" fieldKey="buyer_username" />
+            <Field label="Recipient" fieldKey="recipient" />
+            <Field label="Phone #" fieldKey="phone" />
+            <Field label="Zipcode" fieldKey="zipcode" />
+            <Field label="Country" fieldKey="country" />
+            <Field label="Province" fieldKey="province" />
+            <Field label="Regency and City" fieldKey="regency_and_city" />
+            <Field label="Districts" fieldKey="districts" />
+            <Field label="Villages" fieldKey="villages" />
+            <Field label="Detail Address" fieldKey="detail_address" type="textarea" span />
+            <Field label="Additional Address" fieldKey="additional_address" type="textarea" span />
+            <Field label="Payment Method" fieldKey="payment_method" />
+            <Field label="Weight (kg)" fieldKey="weight_kg" type="number" />
+            <Field label="Product Category" fieldKey="product_category" />
+            <Field label="Package ID" fieldKey="package_id" />
+            <Field label="Purchase Channel" fieldKey="purchase_channel" />
+            <Field label="Seller Note" fieldKey="seller_note" type="textarea" span />
+            <Field label="Checked Status" fieldKey="checked_status" />
+            <Field label="Checked Marked by" fieldKey="checked_marked_by" />
+            <Field label="Tokopedia Invoice Number" fieldKey="tokopedia_invoice_number" />
+            {/* Kolom tambahan */}
+            <Field label="SKU Qty of Return" fieldKey="sku_quantity_of_return" type="number" />
+            <Field label="SKU Unit Original Price" fieldKey="sku_unit_original_price" type="number" />
+            <Field label="SKU Subtotal Before Discount" fieldKey="sku_subtotal_before_discount" type="number" />
+            <Field label="SKU Platform Discount" fieldKey="sku_platform_discount" type="number" />
+            <Field label="SKU Seller Discount" fieldKey="sku_seller_discount" type="number" />
+            <Field label="SKU Subtotal After Discount" fieldKey="sku_subtotal_after_discount" type="number" />
+            <Field label="Shipping Fee After Discount" fieldKey="shipping_fee_after_discount" type="number" />
+            <Field label="Original Shipping Fee" fieldKey="original_shipping_fee" type="number" />
+            <Field label="Shipping Fee Seller Discount" fieldKey="shipping_fee_seller_discount" type="number" />
+            <Field label="Shipping Fee Platform Discount" fieldKey="shipping_fee_platform_discount" type="number" />
+            <Field label="Payment Platform Discount" fieldKey="payment_platform_discount" type="number" />
+            <Field label="Buyer Service Fee" fieldKey="buyer_service_fee" type="number" />
+            <Field label="Handling Fee" fieldKey="handling_fee" type="number" />
+            <Field label="Shipping Insurance" fieldKey="shipping_insurance" type="number" />
+            <Field label="Item Insurance" fieldKey="item_insurance" type="number" />
+            <Field label="Order Amount" fieldKey="order_amount" type="number" />
+            <Field label="Order Refund Amount" fieldKey="order_refund_amount" type="number" />
+            <Field label="Created Time" fieldKey="created_time" type="datetime-local" />
+            <Field label="Paid Time" fieldKey="paid_time" type="datetime-local" />
+            <Field label="RTS Time" fieldKey="rts_time" type="datetime-local" />
+            <Field label="Shipped Time" fieldKey="shipped_time" type="datetime-local" />
+            <Field label="Delivered Time" fieldKey="delivered_time" type="datetime-local" />
+            <Field label="Cancelled Time" fieldKey="cancelled_time" type="datetime-local" />
+            <Field label="Cancel By" fieldKey="cancel_by" />
+            <Field label="Cancel Reason" fieldKey="cancel_reason" />
+            <Field label="Fulfillment Type" fieldKey="fulfillment_type" />
+            <Field label="Warehouse Name" fieldKey="warehouse_name" />
+            <Field label="Tracking ID" fieldKey="tracking_id" />
+          </div>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px' }}>
+            <button className="btn btn-secondary" onClick={() => setModal({ open: false, mode: 'add', data: null })}>Batal</button>
+            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Menyimpan...' : 'Simpan'}</button>
+          </div>
+        </FormContext.Provider>
       </Modal>
 
       <Modal isOpen={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} title="Konfirmasi Hapus" size="sm">

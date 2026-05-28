@@ -210,58 +210,6 @@ const DariCustomer = () => {
     },
   ];
 
-  const FormModal = () => (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-      <div className="form-group">
-        <label className="form-label">Tanggal Masuk</label>
-        <input type="date" className="form-control" value={form.tgl_masuk || ''} onChange={e => setForm({ ...form, tgl_masuk: e.target.value })} />
-      </div>
-      <div className="form-group">
-        <label className="form-label">Nama Customer</label>
-        <input type="text" className="form-control" value={form.nama_customer || ''} onChange={e => setForm({ ...form, nama_customer: e.target.value })} placeholder="Nama customer" />
-      </div>
-      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-        <label className="form-label">Alamat Customer</label>
-        <input type="text" className="form-control" value={form.alamat_customer || ''} onChange={e => setForm({ ...form, alamat_customer: e.target.value })} placeholder="Alamat lengkap customer" />
-      </div>
-      <div className="form-group">
-        <label className="form-label">Tipe</label>
-        <input type="text" className="form-control" value={form.tipe || ''} onChange={e => setForm({ ...form, tipe: e.target.value })} placeholder="Tipe produk" />
-      </div>
-      <div className="form-group">
-        <label className="form-label">Nomor Seri</label>
-        <input type="text" className="form-control" value={form.nomor_seri || ''} onChange={e => setForm({ ...form, nomor_seri: e.target.value })} placeholder="Nomor seri" />
-      </div>
-      <div className="form-group" style={{ gridColumn: '1 / -1' }}>
-        <label className="form-label">Kendala / Diagnosa</label>
-        <textarea className="form-control" rows={2} value={form.kendala_diagnosa || ''} onChange={e => setForm({ ...form, kendala_diagnosa: e.target.value })} placeholder="Kendala atau diagnosa kerusakan" />
-      </div>
-      <div className="form-group">
-        <label className="form-label">Kelengkapan</label>
-        <select className="form-control" value={form.kelengkapan || ''} onChange={e => setForm({ ...form, kelengkapan: e.target.value })}>
-          <option value="">Pilih Kelengkapan</option>
-          {KELENGKAPAN_OPTIONS.map(k => (
-            <option key={k} value={k}>{k}</option>
-          ))}
-        </select>
-      </div>
-      <div className="form-group">
-        <label className="form-label">Validasi</label>
-        <input type="text" className="form-control" value={form.validasi || ''} onChange={e => setForm({ ...form, validasi: e.target.value })} placeholder="Validasi" />
-      </div>
-      <div className="form-group">
-        <label className="form-label">Status</label>
-        <select className="form-control" value={form.status || 'Proses Servis'} onChange={e => setForm({ ...form, status: e.target.value })}>
-          {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
-        </select>
-      </div>
-      <div className="form-group">
-        <label className="form-label">Tgl Kembali</label>
-        <input type="date" className="form-control" value={form.tgl_kembali || ''} onChange={e => setForm({ ...form, tgl_kembali: e.target.value })} />
-      </div>
-    </div>
-  );
-
   return (
     <div className="fade-in">
       <PageHeader
@@ -302,7 +250,55 @@ const DariCustomer = () => {
         title={modal.mode === 'add' ? '➕ Tambah Data Service Reguler' : '✏️ Edit Data Service Reguler'}
         size="lg"
       >
-        <FormModal />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="form-group">
+            <label className="form-label">Tanggal Masuk</label>
+            <input type="date" className="form-control" value={form.tgl_masuk || ''} onChange={e => setForm({ ...form, tgl_masuk: e.target.value })} />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Nama Customer</label>
+            <input type="text" className="form-control" value={form.nama_customer || ''} onChange={e => setForm({ ...form, nama_customer: e.target.value })} placeholder="Nama customer" />
+          </div>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Alamat Customer</label>
+            <input type="text" className="form-control" value={form.alamat_customer || ''} onChange={e => setForm({ ...form, alamat_customer: e.target.value })} placeholder="Alamat lengkap customer" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Tipe</label>
+            <input type="text" className="form-control" value={form.tipe || ''} onChange={e => setForm({ ...form, tipe: e.target.value })} placeholder="Tipe produk" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Nomor Seri</label>
+            <input type="text" className="form-control" value={form.nomor_seri || ''} onChange={e => setForm({ ...form, nomor_seri: e.target.value })} placeholder="Nomor seri" />
+          </div>
+          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+            <label className="form-label">Kendala / Diagnosa</label>
+            <textarea className="form-control" rows={2} value={form.kendala_diagnosa || ''} onChange={e => setForm({ ...form, kendala_diagnosa: e.target.value })} placeholder="Kendala atau diagnosa kerusakan" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Kelengkapan</label>
+            <select className="form-control" value={form.kelengkapan || ''} onChange={e => setForm({ ...form, kelengkapan: e.target.value })}>
+              <option value="">Pilih Kelengkapan</option>
+              {KELENGKAPAN_OPTIONS.map(k => (
+                <option key={k} value={k}>{k}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Validasi</label>
+            <input type="text" className="form-control" value={form.validasi || ''} onChange={e => setForm({ ...form, validasi: e.target.value })} placeholder="Validasi" />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Status</label>
+            <select className="form-control" value={form.status || 'Proses Servis'} onChange={e => setForm({ ...form, status: e.target.value })}>
+              {STATUS_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Tgl Kembali</label>
+            <input type="date" className="form-control" value={form.tgl_kembali || ''} onChange={e => setForm({ ...form, tgl_kembali: e.target.value })} />
+          </div>
+        </div>
         <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end', marginTop: '16px' }}>
           <button className="btn btn-secondary" onClick={() => setModal({ open: false, mode: 'add', data: null })}>Batal</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>

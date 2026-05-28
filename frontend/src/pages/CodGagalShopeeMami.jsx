@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 import { getRecordId } from '../utils/recordId';
@@ -26,6 +26,24 @@ const EMPTY_FORM = {
   metode_pembayaran: '', status_klaim: '', tanggal_klaim_diajukan: '',
   tanggal_klaim_disetujui: '', tanggal_klaim_dicairkan: '', tanggal_klaim_ditolak: '',
   jumlah_kompensasi: ''
+};
+
+const FormContext = createContext(null);
+
+const Field = ({ label, fieldKey, type = 'text', span = false }) => {
+  const { form, setForm } = useContext(FormContext);
+  const value = form[fieldKey] || '';
+  const onChange = e => setForm(prev => ({ ...prev, [fieldKey]: e.target.value }));
+  return (
+    <div className="form-group" style={span ? { gridColumn: '1 / -1' } : {}}>
+      <label className="form-label">{label}</label>
+      {type === 'textarea' ? (
+        <textarea className="form-control" rows={2} value={value} onChange={onChange} />
+      ) : (
+        <input type={type} className="form-control" value={value} onChange={onChange} />
+      )}
+    </div>
+  );
 };
 
 const CodGagalShopeeMami = () => {
@@ -155,15 +173,6 @@ const CodGagalShopeeMami = () => {
     }
   ];
 
-  const Field = ({ label, fieldKey, type = 'text', span = false }) => (
-    <div className="form-group" style={span ? { gridColumn: '1 / -1' } : {}}>
-      <label className="form-label">{label}</label>
-      {type === 'textarea'
-        ? <textarea className="form-control" rows={2} {...f(fieldKey)} />
-        : <input type={type} className="form-control" {...f(fieldKey)} />}
-    </div>
-  );
-
   return (
     <div className="fade-in">
       <PageHeader
@@ -186,69 +195,71 @@ const CodGagalShopeeMami = () => {
 
       <Modal isOpen={modal.open} onClose={() => setModal({ open: false, mode: 'add', data: null })}
         title={modal.mode === 'add' ? 'Tambah COD Gagal Shopee Mami Kasir' : 'Edit COD Gagal Shopee Mami Kasir'} size="lg">
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', maxHeight: '65vh', overflowY: 'auto', padding: '4px' }}>
-          <Field label="Status Brg" fieldKey="status_brg" />
-          <Field label="Dibukukan Accurate" fieldKey="dibukukan_accurate" />
-          <Field label="No. Pesanan *" fieldKey="no_pesanan" />
-          <Field label="Status Pesanan" fieldKey="status_pesanan" />
-          <Field label="Status Pembatalan/Pengembalian" fieldKey="status_pembatalan_pengembalian" />
-          <Field label="Status Pengiriman Gagal" fieldKey="status_pengiriman_gagal" />
-          <Field label="No. Resi" fieldKey="no_resi" />
-          <Field label="Opsi Pengiriman" fieldKey="opsi_pengiriman" />
-          <Field label="Antar ke Counter/Pick-up" fieldKey="antar_ke_counter" />
-          <Field label="Pesanan Harus Dikirim Sebelum" fieldKey="pesanan_harus_dikirim_sebelum" type="datetime-local" />
-          <Field label="Waktu Pengiriman Diatur" fieldKey="waktu_pengiriman_diatur" type="datetime-local" />
-          <Field label="SKU Induk" fieldKey="sku_induk" />
-          <Field label="Nama Produk" fieldKey="nama_produk" span />
-          <Field label="Nomor Referensi SKU" fieldKey="nomor_referensi_sku" />
-          <Field label="Nama Variasi" fieldKey="nama_variasi" />
-          <Field label="Harga Awal" fieldKey="harga_awal" type="number" />
-          <Field label="Harga Setelah Diskon" fieldKey="harga_setelah_diskon" type="number" />
-          <Field label="Jumlah" fieldKey="jumlah" type="number" />
-          <Field label="Returned Quantity" fieldKey="returned_quantity" type="number" />
-          <Field label="Total Harga Produk" fieldKey="total_harga_produk" type="number" />
-          <Field label="Total Diskon" fieldKey="total_diskon" type="number" />
-          <Field label="Diskon Dari Penjual" fieldKey="diskon_dari_penjual" type="number" />
-          <Field label="Diskon Dari Shopee" fieldKey="diskon_dari_shopee" type="number" />
-          <Field label="Berat Produk" fieldKey="berat_produk" />
-          <Field label="Jumlah Produk di Pesan" fieldKey="jumlah_produk_di_pesan" type="number" />
-          <Field label="Total Berat" fieldKey="total_berat" />
-          <Field label="Voucher Ditanggung Penjual" fieldKey="voucher_ditanggung_penjual" type="number" />
-          <Field label="Cashback Koin" fieldKey="cashback_koin" type="number" />
-          <Field label="Voucher Ditanggung Shopee" fieldKey="voucher_ditanggung_shopee" />
-          <Field label="Paket Diskon" fieldKey="paket_diskon" type="number" />
-          <Field label="Paket Diskon (dari Shopee)" fieldKey="paket_diskon_dari_shopee" type="number" />
-          <Field label="Paket Diskon (dari Penjual)" fieldKey="paket_diskon_dari_penjual" type="number" />
-          <Field label="Potongan Koin Shopee" fieldKey="potongan_koin_shopee" type="number" />
-          <Field label="Diskon Kartu Kredit" fieldKey="diskon_kartu_kredit" type="number" />
-          <Field label="Ongkir Dibayar Pembeli" fieldKey="ongkir_dibayar_pembeli" type="number" />
-          <Field label="Estimasi Potongan Biaya Pengiriman" fieldKey="estimasi_potongan_biaya_pengiriman" type="number" />
-          <Field label="Ongkir Pengembalian Barang" fieldKey="ongkir_pengembalian_barang" type="number" />
-          <Field label="Total Pembayaran" fieldKey="total_pembayaran" type="number" />
-          <Field label="Perkiraan Ongkir" fieldKey="perkiraan_ongkir" type="number" />
-          <Field label="Catatan dari Pembeli" fieldKey="catatan_dari_pembeli" type="textarea" span />
-          <Field label="Catatan" fieldKey="catatan" type="textarea" span />
-          <Field label="Username (Pembeli)" fieldKey="username_pembeli" />
-          <Field label="Nama Penerima" fieldKey="nama_penerima" />
-          <Field label="No. Telepon" fieldKey="no_telepon" />
-          <Field label="Alamat Pengiriman" fieldKey="alamat_pengiriman" type="textarea" span />
-          <Field label="Kota/Kabupaten" fieldKey="kota_kabupaten" />
-          <Field label="Provinsi" fieldKey="provinsi" />
-          <Field label="Waktu Pesanan Selesai" fieldKey="waktu_pesanan_selesai" type="datetime-local" />
-          <Field label="Waktu Pesanan Dibuat" fieldKey="waktu_pesanan_dibuat" type="datetime-local" />
-          <Field label="Waktu Pembayaran Dilakukan" fieldKey="waktu_pembayaran_dilakukan" type="datetime-local" />
-          <Field label="Metode Pembayaran" fieldKey="metode_pembayaran" />
-          <Field label="Status Klaim" fieldKey="status_klaim" />
-          <Field label="Tanggal Klaim Diajukan" fieldKey="tanggal_klaim_diajukan" type="date" />
-          <Field label="Tanggal Klaim Disetujui" fieldKey="tanggal_klaim_disetujui" type="date" />
-          <Field label="Tanggal Klaim Dicairkan" fieldKey="tanggal_klaim_dicairkan" type="date" />
-          <Field label="Tanggal Klaim Ditolak" fieldKey="tanggal_klaim_ditolak" type="date" />
-          <Field label="Jumlah Kompensasi" fieldKey="jumlah_kompensasi" type="number" />
-        </div>
-        <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px' }}>
-          <button className="btn btn-secondary" onClick={() => setModal({ open: false, mode: 'add', data: null })}>Batal</button>
-          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Menyimpan...' : 'Simpan'}</button>
-        </div>
+        <FormContext.Provider value={{ form, setForm }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', maxHeight: '65vh', overflowY: 'auto', padding: '4px' }}>
+            <Field label="Status Brg" fieldKey="status_brg" />
+            <Field label="Dibukukan Accurate" fieldKey="dibukukan_accurate" />
+            <Field label="No. Pesanan *" fieldKey="no_pesanan" />
+            <Field label="Status Pesanan" fieldKey="status_pesanan" />
+            <Field label="Status Pembatalan/Pengembalian" fieldKey="status_pembatalan_pengembalian" />
+            <Field label="Status Pengiriman Gagal" fieldKey="status_pengiriman_gagal" />
+            <Field label="No. Resi" fieldKey="no_resi" />
+            <Field label="Opsi Pengiriman" fieldKey="opsi_pengiriman" />
+            <Field label="Antar ke Counter/Pick-up" fieldKey="antar_ke_counter" />
+            <Field label="Pesanan Harus Dikirim Sebelum" fieldKey="pesanan_harus_dikirim_sebelum" type="datetime-local" />
+            <Field label="Waktu Pengiriman Diatur" fieldKey="waktu_pengiriman_diatur" type="datetime-local" />
+            <Field label="SKU Induk" fieldKey="sku_induk" />
+            <Field label="Nama Produk" fieldKey="nama_produk" span />
+            <Field label="Nomor Referensi SKU" fieldKey="nomor_referensi_sku" />
+            <Field label="Nama Variasi" fieldKey="nama_variasi" />
+            <Field label="Harga Awal" fieldKey="harga_awal" type="number" />
+            <Field label="Harga Setelah Diskon" fieldKey="harga_setelah_diskon" type="number" />
+            <Field label="Jumlah" fieldKey="jumlah" type="number" />
+            <Field label="Returned Quantity" fieldKey="returned_quantity" type="number" />
+            <Field label="Total Harga Produk" fieldKey="total_harga_produk" type="number" />
+            <Field label="Total Diskon" fieldKey="total_diskon" type="number" />
+            <Field label="Diskon Dari Penjual" fieldKey="diskon_dari_penjual" type="number" />
+            <Field label="Diskon Dari Shopee" fieldKey="diskon_dari_shopee" type="number" />
+            <Field label="Berat Produk" fieldKey="berat_produk" />
+            <Field label="Jumlah Produk di Pesan" fieldKey="jumlah_produk_di_pesan" type="number" />
+            <Field label="Total Berat" fieldKey="total_berat" />
+            <Field label="Voucher Ditanggung Penjual" fieldKey="voucher_ditanggung_penjual" type="number" />
+            <Field label="Cashback Koin" fieldKey="cashback_koin" type="number" />
+            <Field label="Voucher Ditanggung Shopee" fieldKey="voucher_ditanggung_shopee" />
+            <Field label="Paket Diskon" fieldKey="paket_diskon" type="number" />
+            <Field label="Paket Diskon (dari Shopee)" fieldKey="paket_diskon_dari_shopee" type="number" />
+            <Field label="Paket Diskon (dari Penjual)" fieldKey="paket_diskon_dari_penjual" type="number" />
+            <Field label="Potongan Koin Shopee" fieldKey="potongan_koin_shopee" type="number" />
+            <Field label="Diskon Kartu Kredit" fieldKey="diskon_kartu_kredit" type="number" />
+            <Field label="Ongkir Dibayar Pembeli" fieldKey="ongkir_dibayar_pembeli" type="number" />
+            <Field label="Estimasi Potongan Biaya Pengiriman" fieldKey="estimasi_potongan_biaya_pengiriman" type="number" />
+            <Field label="Ongkir Pengembalian Barang" fieldKey="ongkir_pengembalian_barang" type="number" />
+            <Field label="Total Pembayaran" fieldKey="total_pembayaran" type="number" />
+            <Field label="Perkiraan Ongkir" fieldKey="perkiraan_ongkir" type="number" />
+            <Field label="Catatan dari Pembeli" fieldKey="catatan_dari_pembeli" type="textarea" span />
+            <Field label="Catatan" fieldKey="catatan" type="textarea" span />
+            <Field label="Username (Pembeli)" fieldKey="username_pembeli" />
+            <Field label="Nama Penerima" fieldKey="nama_penerima" />
+            <Field label="No. Telepon" fieldKey="no_telepon" />
+            <Field label="Alamat Pengiriman" fieldKey="alamat_pengiriman" type="textarea" span />
+            <Field label="Kota/Kabupaten" fieldKey="kota_kabupaten" />
+            <Field label="Provinsi" fieldKey="provinsi" />
+            <Field label="Waktu Pesanan Selesai" fieldKey="waktu_pesanan_selesai" type="datetime-local" />
+            <Field label="Waktu Pesanan Dibuat" fieldKey="waktu_pesanan_dibuat" type="datetime-local" />
+            <Field label="Waktu Pembayaran Dilakukan" fieldKey="waktu_pembayaran_dilakukan" type="datetime-local" />
+            <Field label="Metode Pembayaran" fieldKey="metode_pembayaran" />
+            <Field label="Status Klaim" fieldKey="status_klaim" />
+            <Field label="Tanggal Klaim Diajukan" fieldKey="tanggal_klaim_diajukan" type="date" />
+            <Field label="Tanggal Klaim Disetujui" fieldKey="tanggal_klaim_disetujui" type="date" />
+            <Field label="Tanggal Klaim Dicairkan" fieldKey="tanggal_klaim_dicairkan" type="date" />
+            <Field label="Tanggal Klaim Ditolak" fieldKey="tanggal_klaim_ditolak" type="date" />
+            <Field label="Jumlah Kompensasi" fieldKey="jumlah_kompensasi" type="number" />
+          </div>
+          <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', marginTop: '12px' }}>
+            <button className="btn btn-secondary" onClick={() => setModal({ open: false, mode: 'add', data: null })}>Batal</button>
+            <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving ? 'Menyimpan...' : 'Simpan'}</button>
+          </div>
+        </FormContext.Provider>
       </Modal>
 
       <Modal isOpen={!!deleteConfirm} onClose={() => setDeleteConfirm(null)} title="Konfirmasi Hapus" size="sm">

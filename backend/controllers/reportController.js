@@ -259,6 +259,24 @@ exports.exportExcel = async (req, res) => {
       case 'sales-support':
         [data] = await db.query(`SELECT * FROM sales_support WHERE 1=1 ${dateFilter} ORDER BY created_at DESC`);
         break;
+      case 'cod-gagal':
+        [data] = await db.query(`SELECT * FROM cod_gagal WHERE 1=1 ${dateFilter} ORDER BY created_at DESC`);
+        break;
+      case 'cod-gagal-tiktok':
+        [data] = await db.query(`SELECT * FROM cod_gagal_tiktok WHERE 1=1 ${dateFilter} ORDER BY created_at DESC`);
+        break;
+      case 'cod-gagal-tiktok-mami':
+        [data] = await db.query(`SELECT * FROM cod_gagal_tiktok_mami_kasir WHERE 1=1 ${dateFilter} ORDER BY created_at DESC`);
+        break;
+      case 'cod-gagal-shopee-algoo':
+        [data] = await db.query(`SELECT * FROM cod_gagal_shopee_algoo WHERE 1=1 ${dateFilter} ORDER BY created_at DESC`);
+        break;
+      case 'cod-gagal-shopee-mami':
+        [data] = await db.query(`SELECT * FROM cod_gagal_shopee_mami_kasir WHERE 1=1 ${dateFilter} ORDER BY created_at DESC`);
+        break;
+      case 'retur-pengembalian':
+        [data] = await db.query(`SELECT * FROM retur_pengembalian WHERE 1=1 ${dateFilter} ORDER BY created_at DESC`);
+        break;
       default:
         return res.status(400).json({ success: false, message: 'Invalid module' });
     }
@@ -336,6 +354,41 @@ exports.exportPDF = async (req, res) => {
         title = 'Sales Support';
         columns = ['tanggal','nomor_wa','marketplace','no_pesanan','produk','keluhan','masalah','metode_solusi','status'];
         [data] = await db.query(`SELECT tanggal, nomor_wa, marketplace, no_pesanan, produk, keluhan, masalah, metode_solusi, status FROM sales_support WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT 200`);
+        break;
+      case 'blp':
+        title = 'Service / BLP';
+        columns = ['marketplace', 'no_pesanan', 'produk', 'serial_number', 'status', 'hasil_akhir'];
+        [data] = await db.query(`SELECT marketplace, no_pesanan, produk, serial_number, status, hasil_akhir FROM blp WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT 200`);
+        break;
+      case 'cod-gagal':
+        title = 'COD Gagal';
+        columns = ['tgl_order', 'nama_akun', 'no_order', 'no_retur', 'produk', 'proses', 'gudang'];
+        [data] = await db.query(`SELECT tgl_order, nama_akun, no_order, no_retur, produk, proses, gudang FROM cod_gagal WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT 200`);
+        break;
+      case 'retur-pengembalian':
+        title = 'Retur Pengembalian';
+        columns = ['tgl_order', 'nama_akun', 'no_order', 'no_retur', 'produk', 'proses', 'gudang'];
+        [data] = await db.query(`SELECT tgl_order, nama_akun, no_order, no_retur, produk, proses, gudang FROM retur_pengembalian WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT 200`);
+        break;
+      case 'cod-gagal-tiktok':
+        title = 'COD Gagal TikTok Algoo';
+        columns = ['order_id', 'order_status', 'buyer_username', 'recipient', 'sku_id', 'tracking_id'];
+        [data] = await db.query(`SELECT order_id, order_status, buyer_username, recipient, sku_id, tracking_id FROM cod_gagal_tiktok WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT 200`);
+        break;
+      case 'cod-gagal-tiktok-mami':
+        title = 'COD Gagal TikTok Mami';
+        columns = ['no_pesanan', 'status_pesanan', 'username_pembeli', 'nama_penerima', 'sku_induk', 'no_resi'];
+        [data] = await db.query(`SELECT no_pesanan, status_pesanan, username_pembeli, nama_penerima, sku_induk, no_resi FROM cod_gagal_tiktok_mami_kasir WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT 200`);
+        break;
+      case 'cod-gagal-shopee-algoo':
+        title = 'COD Gagal Shopee Algoo';
+        columns = ['no_pesanan', 'status_pesanan', 'username_pembeli', 'nama_penerima', 'sku_induk', 'no_resi'];
+        [data] = await db.query(`SELECT no_pesanan, status_pesanan, username_pembeli, nama_penerima, sku_induk, no_resi FROM cod_gagal_shopee_algoo WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT 200`);
+        break;
+      case 'cod-gagal-shopee-mami':
+        title = 'COD Gagal Shopee Mami';
+        columns = ['no_pesanan', 'status_pesanan', 'username_pembeli', 'nama_penerima', 'sku_induk', 'no_resi'];
+        [data] = await db.query(`SELECT no_pesanan, status_pesanan, username_pembeli, nama_penerima, sku_induk, no_resi FROM cod_gagal_shopee_mami_kasir WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT 200`);
         break;
       default:
         return res.status(400).json({ success: false, message: 'Invalid module' });
@@ -528,6 +581,93 @@ exports.getReportPreview = async (req, res) => {
             SUM(CASE WHEN status = 'No Respond' THEN 1 ELSE 0 END) as no_respond,
             SUM(CASE WHEN status = 'Retur' THEN 1 ELSE 0 END) as retur
           FROM sales_support WHERE 1=1 ${dateFilter}
+        `);
+        break;
+
+      case 'blp':
+        [data] = await db.query(`SELECT * FROM blp WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`);
+        [[{ total }]] = await db.query(`SELECT COUNT(*) as total FROM blp WHERE 1=1 ${dateFilter}`);
+        [[stats]] = await db.query(`
+          SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN status = 'Selesai' THEN 1 ELSE 0 END) as selesai,
+            SUM(CASE WHEN status = 'Service' THEN 1 ELSE 0 END) as service,
+            SUM(CASE WHEN status = 'Error' THEN 1 ELSE 0 END) as error
+          FROM blp WHERE 1=1 ${dateFilter}
+        `);
+        break;
+
+      case 'cod-gagal':
+        [data] = await db.query(`SELECT * FROM cod_gagal WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`);
+        [[{ total }]] = await db.query(`SELECT COUNT(*) as total FROM cod_gagal WHERE 1=1 ${dateFilter}`);
+        [[stats]] = await db.query(`
+          SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN proses = 'Banding' THEN 1 ELSE 0 END) as banding,
+            SUM(CASE WHEN proses = 'Selesai' THEN 1 ELSE 0 END) as selesai,
+            SUM(CASE WHEN proses = 'Tidak Banding' THEN 1 ELSE 0 END) as tidak_banding
+          FROM cod_gagal WHERE 1=1 ${dateFilter}
+        `);
+        break;
+
+      case 'retur-pengembalian':
+        [data] = await db.query(`SELECT * FROM retur_pengembalian WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`);
+        [[{ total }]] = await db.query(`SELECT COUNT(*) as total FROM retur_pengembalian WHERE 1=1 ${dateFilter}`);
+        [[stats]] = await db.query(`
+          SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN proses = 'Banding' THEN 1 ELSE 0 END) as banding,
+            SUM(CASE WHEN proses = 'Selesai' THEN 1 ELSE 0 END) as selesai,
+            SUM(CASE WHEN proses = 'Tidak Banding' THEN 1 ELSE 0 END) as tidak_banding
+          FROM retur_pengembalian WHERE 1=1 ${dateFilter}
+        `);
+        break;
+
+      case 'cod-gagal-tiktok':
+        [data] = await db.query(`SELECT * FROM cod_gagal_tiktok WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`);
+        [[{ total }]] = await db.query(`SELECT COUNT(*) as total FROM cod_gagal_tiktok WHERE 1=1 ${dateFilter}`);
+        [[stats]] = await db.query(`
+          SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN checked_status = 'Checked' THEN 1 ELSE 0 END) as checked,
+            SUM(CASE WHEN checked_status <> 'Checked' OR checked_status IS NULL THEN 1 ELSE 0 END) as unchecked
+          FROM cod_gagal_tiktok WHERE 1=1 ${dateFilter}
+        `);
+        break;
+
+      case 'cod-gagal-tiktok-mami':
+        [data] = await db.query(`SELECT * FROM cod_gagal_tiktok_mami_kasir WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`);
+        [[{ total }]] = await db.query(`SELECT COUNT(*) as total FROM cod_gagal_tiktok_mami_kasir WHERE 1=1 ${dateFilter}`);
+        [[stats]] = await db.query(`
+          SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN status_brg = 'Diterima' THEN 1 ELSE 0 END) as diterima,
+            SUM(CASE WHEN status_brg <> 'Diterima' OR status_brg IS NULL THEN 1 ELSE 0 END) as belum_diterima
+          FROM cod_gagal_tiktok_mami_kasir WHERE 1=1 ${dateFilter}
+        `);
+        break;
+
+      case 'cod-gagal-shopee-algoo':
+        [data] = await db.query(`SELECT * FROM cod_gagal_shopee_algoo WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`);
+        [[{ total }]] = await db.query(`SELECT COUNT(*) as total FROM cod_gagal_shopee_algoo WHERE 1=1 ${dateFilter}`);
+        [[stats]] = await db.query(`
+          SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN status_brg = 'Diterima' THEN 1 ELSE 0 END) as diterima,
+            SUM(CASE WHEN status_brg <> 'Diterima' OR status_brg IS NULL THEN 1 ELSE 0 END) as belum_diterima
+          FROM cod_gagal_shopee_algoo WHERE 1=1 ${dateFilter}
+        `);
+        break;
+
+      case 'cod-gagal-shopee-mami':
+        [data] = await db.query(`SELECT * FROM cod_gagal_shopee_mami_kasir WHERE 1=1 ${dateFilter} ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}`);
+        [[{ total }]] = await db.query(`SELECT COUNT(*) as total FROM cod_gagal_shopee_mami_kasir WHERE 1=1 ${dateFilter}`);
+        [[stats]] = await db.query(`
+          SELECT
+            COUNT(*) as total,
+            SUM(CASE WHEN status_brg = 'Diterima' THEN 1 ELSE 0 END) as diterima,
+            SUM(CASE WHEN status_brg <> 'Diterima' OR status_brg IS NULL THEN 1 ELSE 0 END) as belum_diterima
+          FROM cod_gagal_shopee_mami_kasir WHERE 1=1 ${dateFilter}
         `);
         break;
 

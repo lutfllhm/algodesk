@@ -153,6 +153,153 @@ const MODULES = [
       { key: 'retur', label: 'Retur', color: '#ef4444' },
     ]
   },
+  {
+    value: 'blp', label: 'Service / BLP', icon: '🔧', color: '#8b5cf6',
+    columns: [
+      { key: 'marketplace', label: 'Marketplace' },
+      { key: 'no_pesanan', label: 'No Pesanan' },
+      { key: 'alasan_retur', label: 'Alasan Retur' },
+      { key: 'produk', label: 'Produk' },
+      { key: 'serial_number', label: 'No Seri' },
+      { key: 'kondisi_barang', label: 'Kondisi Barang' },
+      { key: 'kelengkapan', label: 'Kelengkapan' },
+      { key: 'diagnosa', label: 'Diagnosa' },
+      { key: 'validasi', label: 'Validasi' },
+      { key: 'status', label: 'Status', type: 'badge' },
+      { key: 'tgl_servis', label: 'Tgl Servis', type: 'date' },
+      { key: 'tgl_selesai_servis', label: 'Tgl Selesai', type: 'date' },
+      { key: 'hasil_akhir', label: 'Hasil Akhir', type: 'badge' },
+      { key: 'tgl_kembali_stok', label: 'Tgl Kembali Stok', type: 'date' },
+      { key: 'keterangan', label: 'Keterangan' },
+    ],
+    statKeys: [
+      { key: 'total', label: 'Total', color: '#8b5cf6' },
+      { key: 'selesai', label: 'Selesai', color: '#22c55e' },
+      { key: 'service', label: 'Service', color: '#f59e0b' },
+      { key: 'error', label: 'Error', color: '#ef4444' },
+    ]
+  },
+  {
+    value: 'cod-gagal', label: 'COD Gagal', icon: '📦', color: '#ea580c',
+    columns: [
+      { key: 'tgl_order', label: 'Tgl Order', type: 'date' },
+      { key: 'nama_akun', label: 'Nama Akun' },
+      { key: 'no_order', label: 'No Order' },
+      { key: 'no_retur', label: 'No Retur' },
+      { key: 'produk', label: 'Produk' },
+      { key: 'kendala', label: 'Kendala' },
+      { key: 'proses', label: 'Proses', type: 'badge' },
+      { key: 'gudang', label: 'Gudang' },
+      { key: 'keterangan', label: 'Keterangan' },
+    ],
+    statKeys: [
+      { key: 'total', label: 'Total', color: '#ea580c' },
+      { key: 'banding', label: 'Banding', color: '#f59e0b' },
+      { key: 'selesai', label: 'Selesai', color: '#22c55e' },
+      { key: 'tidak_banding', label: 'Tdk Banding', color: '#ef4444' },
+    ]
+  },
+  {
+    value: 'retur-pengembalian', label: 'Retur Pengembalian', icon: '↩️', color: '#ec4899',
+    columns: [
+      { key: 'tgl_order', label: 'Tgl Order', type: 'date' },
+      { key: 'nama_akun', label: 'Nama Akun' },
+      { key: 'no_order', label: 'No Order' },
+      { key: 'no_retur', label: 'No Retur' },
+      { key: 'produk', label: 'Produk' },
+      { key: 'kendala', label: 'Kendala' },
+      { key: 'proses', label: 'Proses', type: 'badge' },
+      { key: 'gudang', label: 'Gudang' },
+      { key: 'keterangan', label: 'Keterangan' },
+    ],
+    statKeys: [
+      { key: 'total', label: 'Total', color: '#ec4899' },
+      { key: 'banding', label: 'Banding', color: '#f59e0b' },
+      { key: 'selesai', label: 'Selesai', color: '#22c55e' },
+      { key: 'tidak_banding', label: 'Tdk Banding', color: '#ef4444' },
+    ]
+  },
+  {
+    value: 'cod-gagal-tiktok', label: 'COD TikTok Algoo', icon: '🎵', color: '#111827',
+    columns: [
+      { key: 'status_brg', label: 'Status Barang' },
+      { key: 'dibukukan_accurate', label: 'Akurat' },
+      { key: 'order_id', label: 'Order ID' },
+      { key: 'order_status', label: 'Status' },
+      { key: 'sku_id', label: 'SKU ID' },
+      { key: 'seller_sku', label: 'Seller SKU' },
+      { key: 'recipient', label: 'Penerima' },
+      { key: 'phone', label: 'No Telp' },
+      { key: 'payment_method', label: 'Payment' },
+      { key: 'tracking_id', label: 'Tracking ID' },
+      { key: 'checked_status', label: 'Checked Status', type: 'badge' },
+    ],
+    statKeys: [
+      { key: 'total', label: 'Total', color: '#111827' },
+      { key: 'checked', label: 'Checked', color: '#22c55e' },
+      { key: 'unchecked', label: 'Unchecked', color: '#ef4444' },
+    ]
+  },
+  {
+    value: 'cod-gagal-tiktok-mami', label: 'COD TikTok Mami', icon: '🎵', color: '#312e81',
+    columns: [
+      { key: 'status_brg', label: 'Status Barang', type: 'badge' },
+      { key: 'dibukukan_accurate', label: 'Akurat' },
+      { key: 'no_pesanan', label: 'No Pesanan' },
+      { key: 'status_pesanan', label: 'Status Pesanan' },
+      { key: 'no_resi', label: 'No Resi' },
+      { key: 'sku_induk', label: 'SKU Induk' },
+      { key: 'nama_produk', label: 'Nama Produk' },
+      { key: 'nama_penerima', label: 'Penerima' },
+      { key: 'no_telepon', label: 'No Telp' },
+      { key: 'total_pembayaran', label: 'Total Bayar' },
+    ],
+    statKeys: [
+      { key: 'total', label: 'Total', color: '#312e81' },
+      { key: 'diterima', label: 'Diterima', color: '#22c55e' },
+      { key: 'belum_diterima', label: 'Blm Diterima', color: '#ef4444' },
+    ]
+  },
+  {
+    value: 'cod-gagal-shopee-algoo', label: 'COD Shopee Algoo', icon: '🛍️', color: '#f97316',
+    columns: [
+      { key: 'status_brg', label: 'Status Barang', type: 'badge' },
+      { key: 'dibukukan_accurate', label: 'Akurat' },
+      { key: 'no_pesanan', label: 'No Pesanan' },
+      { key: 'status_pesanan', label: 'Status Pesanan' },
+      { key: 'no_resi', label: 'No Resi' },
+      { key: 'sku_induk', label: 'SKU Induk' },
+      { key: 'nama_produk', label: 'Nama Produk' },
+      { key: 'nama_penerima', label: 'Penerima' },
+      { key: 'no_telepon', label: 'No Telp' },
+      { key: 'total_pembayaran', label: 'Total Bayar' },
+    ],
+    statKeys: [
+      { key: 'total', label: 'Total', color: '#f97316' },
+      { key: 'diterima', label: 'Diterima', color: '#22c55e' },
+      { key: 'belum_diterima', label: 'Blm Diterima', color: '#ef4444' },
+    ]
+  },
+  {
+    value: 'cod-gagal-shopee-mami', label: 'COD Shopee Mami', icon: '🛍️', color: '#c2410c',
+    columns: [
+      { key: 'status_brg', label: 'Status Barang', type: 'badge' },
+      { key: 'dibukukan_accurate', label: 'Akurat' },
+      { key: 'no_pesanan', label: 'No Pesanan' },
+      { key: 'status_pesanan', label: 'Status Pesanan' },
+      { key: 'no_resi', label: 'No Resi' },
+      { key: 'sku_induk', label: 'SKU Induk' },
+      { key: 'nama_produk', label: 'Nama Produk' },
+      { key: 'nama_penerima', label: 'Penerima' },
+      { key: 'no_telepon', label: 'No Telp' },
+      { key: 'total_pembayaran', label: 'Total Bayar' },
+    ],
+    statKeys: [
+      { key: 'total', label: 'Total', color: '#c2410c' },
+      { key: 'diterima', label: 'Diterima', color: '#22c55e' },
+      { key: 'belum_diterima', label: 'Blm Diterima', color: '#ef4444' },
+    ]
+  },
 ];
 
 // ─── Badge colors ─────────────────────────────────────────────────────────────
@@ -168,6 +315,15 @@ const BADGE_COLORS = {
   'Done': { bg: '#dcfce7', color: '#166534' },
   'No Respond': { bg: '#fef3c7', color: '#92400e' },
   'Retur': { bg: '#fee2e2', color: '#991b1b' },
+  'Service': { bg: '#fef3c7', color: '#92400e' },
+  'Error': { bg: '#fee2e2', color: '#991b1b' },
+  'Checked': { bg: '#dcfce7', color: '#166534' },
+  'Unchecked': { bg: '#fee2e2', color: '#991b1b' },
+  'Diterima': { bg: '#dcfce7', color: '#166534' },
+  'Belum Diterima': { bg: '#fee2e2', color: '#991b1b' },
+  'Returned': { bg: '#fee2e2', color: '#991b1b' },
+  'Proses Service': { bg: '#dbeafe', color: '#1e40af' },
+  'Kembali ke Stok': { bg: '#dcfce7', color: '#166534' },
 };
 
 const Badge = ({ value }) => {
